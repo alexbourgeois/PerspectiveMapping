@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 
+[ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
 public class PerspectiveMappingCamera : MonoBehaviour
 {
