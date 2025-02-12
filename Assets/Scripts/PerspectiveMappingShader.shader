@@ -7,12 +7,15 @@ Shader "CustomEffects/PerspectiveMappingShader"
         // the input structure (Attributes), and the output structure (Varyings)
         #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
 
-        float2 _BotLeftCorner;
-        float2 _BotRightCorner;
-        float2 _TopLeftCorner;
-        float2 _TopRightCorner;
+        
         float _ShowGrid;
-        float2 _GridSize;
+        float _GridSize;
+        float _AspectRatio;
+        float _LineWidth;
+        
+        float _TestPatternTexCoeff;
+        TEXTURE2D(_TestPatternTex);
+        SAMPLER(sampler_TestPatternTex);
 
         float4 _ClearColor = (1.0,0,0,1.0);
 
@@ -34,29 +37,56 @@ Shader "CustomEffects/PerspectiveMappingShader"
 
         float ComputeGrid( float2 uv )
         {
-            // Grid.
-            float2 pos = uv * _GridSize;
-            float2 offPos = pos + 0.5;
-            float2 f  = abs( frac( offPos ) - 0.5 );		// Frac is the fractoinal part, like f = v - floor(v)
-            float2 df = fwidth( offPos ) * 1.2;	// Fwidth (fragment width): sum of approximate window-space partial derivatives magnitudes
-            float2 g  = smoothstep( -df, df, f );			// Grid
+            // N = _GridSize : en grid space, la taille d'une cellule vaut 1.
+            float N = _GridSize;
+            
+            // --- GRILLE ---
+            // Passage en grid space en tenant compte de l'aspect :
+            float2 gridCoord = uv * float2( N * _AspectRatio, N );
+            // On récupère la position dans la cellule (valeurs entre 0 et 1)
+            float2 f = frac( gridCoord );
+            // d = distance minimale à un bord (soit vers 0 ou 1)
+            float2 d = min( f, 1.0 - f );
+            // On souhaite tracer une ligne si la distance est inférieure à _LineWidth/2.
+            // La fonction step(edge, x) retourne 0 si x < edge, et 1 sinon.
+            float lineX = 1.0 - step( _LineWidth * 0.5, d.x );
+            float lineY = 1.0 - step( _LineWidth * 0.5, d.y );
+            // Si l'une des deux directions présente un trait (valeur 1), on considère que la cellule est sur une ligne.
+            // On définit alors grid = 0 dans la zone de trait, et grid = 1 en fond.
+            float grid = 1.0 - max( lineX, lineY );
+            
+            // --- CROIX ---
+            // Première diagonale (de bas à gauche vers haut à droite) :
+            // La distance perpendiculaire à la droite passant par le centre est :
+            float d1 = abs(uv.y - uv.x ) / 1.4142135624;
+            // On dessine la ligne si d1 < _LineWidth/2
+            float l1 = step( _LineWidth / 20.0, d1 );  // l1 = 0 sur le trait, 1 en fond.
+            
+            // Seconde diagonale (de haut à gauche vers bas à droite) :
+            float d2 = abs( ( uv.x + uv.y - 1.0 ) ) / 1.4142135624;
+            float l2 = step( _LineWidth / 20.0, d2 );
+            
+            // La croix sera présente (valeur 0) si l'une des deux diagonales est en mode "trait"
+            float cross = l1 * l2;
+            
+            // --- CERCLE ---
+            float2 pos = uv * float2( N * _AspectRatio, N );
+            float2 dim = float2( N * _AspectRatio, N );
+            float minSize = min( dim.x , dim.y );
 
-            // Cross.
-            float l1 = ( uv.y - uv.x ) / 1.4142135624;
-            l1 = saturate( smoothstep( -df, df, abs( l1 * 10 ) ) );
-            float l2 = ( uv.x + uv.y - 1 ) / 1.4142135624;
-            l2 = saturate( smoothstep( -df, df, abs( l2 * 10 ) ) );  
-
-            // Circle.
-            float minSize = _GridSize.x > _GridSize.y ? _GridSize.y : _GridSize.x;
-            float2 fromCenter = _GridSize-pos*2;
+            // La distance au centre (ici, on calcule à partir d'une position centrée)
+            float2 fromCenter = dim - pos * 2.0;
             float radius = length( fromCenter );
-            df *= 2; // Thicker stroke.
-            float c = saturate( smoothstep( -df, df, abs(radius - minSize) ) );
 
-            return 1 - saturate( g.x * g.y * c * l1 * l2 );
+            float circleThreshold = _LineWidth / (0.125 * N);
+            float circle = step( circleThreshold, abs(radius - minSize) );
+            
+            // --- COMBINAISON ---
+            // Pour chaque élément, 0 signifie "trait" et 1 "fond".
+            // Le produit grid * cross * circle vaut 1 uniquement en fond (aucun trait).
+            // On retourne alors 1 - produit, ce qui donne 1 (blanc) sur les traits et 0 (noir) en fond.
+            return 1.0 - saturate( grid * cross * circle );
         }
-
         
         float4 ClearBackground(Varyings input) : SV_Target  {
             return _ClearColor;
@@ -87,7 +117,8 @@ Shader "CustomEffects/PerspectiveMappingShader"
             uvTransformed.x = remap(uvTransformed.x, 0.5,1,0,1);
             uvTransformed.y = remap(uvTransformed.y, 0,0.5,0,1);
 
-            color.rgb = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, uvTransformed).rgb;
+            color.rgb = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, uvTransformed).rgb * (1.0-_TestPatternTexCoeff);
+            color.rgb += SAMPLE_TEXTURE2D(_TestPatternTex, sampler_LinearClamp, uvTransformed).rgb *_TestPatternTexCoeff;
 
             float grid = ComputeGrid( uvTransformed ) * _ShowGrid;
             color = color + grid;

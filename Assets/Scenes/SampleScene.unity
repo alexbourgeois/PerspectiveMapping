@@ -269,36 +269,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab5e19b95298c8c44bf0642430a42506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  corners:
-  - {x: -1, y: -1}
-  - {x: -1, y: 1}
-  - {x: 1, y: 1}
-  - {x: 1, y: -1}
-  interactableHotkey: 112
-  magneticCornerDistance: 0.2
+  corners: []
   interactable: 0
-  isFollowingMouse: 0
-  _actualIndex: -1
-  tileCountX: 30
-  tileCountY: 29
+  mappingModeHotkey: 112
+  resetMappingHotkey: 114
+  showTestPatternHotkey: 111
+  magneticCornerDistance: 0.2
   clearColor: {r: 0, g: 0, b: 0, a: 1}
+  showTestPatternTexture: 0
+  testPatternTexture: {fileID: 0}
+  squareSize: 10
+  lineWidth: 0.02
   matrix:
-    e00: 2
+    e00: 0
     e01: 0
     e02: 0
-    e03: -1
+    e03: 0
     e10: 0
-    e11: 2
+    e11: 0
     e12: 0
-    e13: -1
+    e13: 0
     e20: 0
     e21: 0
     e22: 0
     e23: 0
-    e30: -0
-    e31: -0
+    e30: 0
+    e31: 0
     e32: 0
-    e33: 1
+    e33: 0
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -561,36 +559,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab5e19b95298c8c44bf0642430a42506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  corners:
-  - {x: -1, y: -1}
-  - {x: -1, y: 1}
-  - {x: 1, y: 1}
-  - {x: 1, y: -1}
-  interactableHotkey: 112
-  magneticCornerDistance: 0.2
+  corners: []
   interactable: 0
-  isFollowingMouse: 0
-  _actualIndex: -1
-  tileCountX: 20
-  tileCountY: 13
-  clearColor: {r: 0.34520242, g: 0.2693841, b: 0.6075471, a: 1}
+  mappingModeHotkey: 112
+  resetMappingHotkey: 114
+  showTestPatternHotkey: 111
+  magneticCornerDistance: 0.2
+  clearColor: {r: 0, g: 0, b: 0, a: 1}
+  showTestPatternTexture: 0
+  testPatternTexture: {fileID: 0}
+  squareSize: 10
+  lineWidth: 0.02
   matrix:
-    e00: 2
+    e00: 0
     e01: 0
     e02: 0
-    e03: -1
+    e03: 0
     e10: 0
-    e11: 2
+    e11: 0
     e12: 0
-    e13: -1
+    e13: 0
     e20: 0
     e21: 0
     e22: 0
     e23: 0
-    e30: -0
-    e31: -0
+    e30: 0
+    e31: 0
     e32: 0
-    e33: 1
+    e33: 0
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0

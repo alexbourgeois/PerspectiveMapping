@@ -14,6 +14,10 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
     private static readonly int clearColorVarId = Shader.PropertyToID("_ClearColor");
     private static readonly int gridSizeVarId = Shader.PropertyToID("_GridSize");
     private static readonly int showGridVarId = Shader.PropertyToID("_ShowGrid");
+    private static readonly int showTestPatternVarId = Shader.PropertyToID("_TestPatternTexCoeff");
+    private static readonly int testPatternTexVarId = Shader.PropertyToID("_TestPatternTex");
+    private static readonly int aspectRatioVarId = Shader.PropertyToID("_AspectRatio");
+    private static readonly int lineWidthVarId = Shader.PropertyToID("_LineWidth");
 
     private const string k_MappedTextureName = "_MappedTexture";
     private const string k_PerspectiveMappingPassName = "PerspectiveMappingPass";
@@ -39,11 +43,21 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
         material.SetColor(clearColorVarId, perspCam.clearColor);
 
         if(perspCam.interactable){
-			material.SetVector(gridSizeVarId, new Vector2( perspCam.tileCountX, perspCam.tileCountY ) );
+			material.SetFloat(gridSizeVarId, perspCam.squareSize);
             material.SetFloat(showGridVarId, 1f);
+            material.SetFloat(aspectRatioVarId, perspCam.GetASpectRatio());
+            material.SetFloat(lineWidthVarId, perspCam.lineWidth);
 		}
         else {
             material.SetFloat(showGridVarId, 0f);
+        }
+
+        if(perspCam.showTestPatternTexture) {
+            material.SetFloat(showTestPatternVarId, 1.0f);
+            material.SetTexture(testPatternTexVarId, perspCam.testPatternTexture);
+        }
+        else {
+            material.SetFloat(showTestPatternVarId, 0.0f);
         }
 
     }
