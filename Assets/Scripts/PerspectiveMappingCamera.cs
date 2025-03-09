@@ -116,6 +116,10 @@ public class PerspectiveMappingCamera : MonoBehaviour
             Debug.Log(_actualIndex);
         }
 
+        // TODO: actualIndex -> enum with:
+        //     - corners
+        //     - center (for translations)
+        //     - circle intersections with diagonals
         if( _actualIndex != -1) {
             if( _isFollowingMouse) {
                 var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
