@@ -14,10 +14,10 @@ public class PerspectiveMappingSettings
 
     
     public readonly Vector2[] sourcePoints = new []{ //lower-left, upper-left, upper-right, lower-right.
-		new Vector2( 0, 0 ), //bot left
 		new Vector2( 0, 1 ), //top left
-		new Vector2( 1, 1 ), // top right
-		new Vector2( 1, 0 ) //bot right
+		new Vector2( 0, 0 ), //bot left
+		new Vector2( 1, 0 ), //bot right
+		new Vector2( 1, 1 ), //top right
 	};
 
     Matrix4x4 matrix;

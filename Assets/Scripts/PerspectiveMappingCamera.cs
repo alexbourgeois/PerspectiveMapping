@@ -109,16 +109,18 @@ public class PerspectiveMappingCamera : MonoBehaviour
         if(Input.GetMouseButtonDown(0)) {
             _isFollowingMouse = true;
             var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
+            Debug.Log(mousePos);
             mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
-            mousePos.y = -mousePos.y;
+            // mousePos.y = -mousePos.y;
             _actualIndex = GetClosestCornerIndex(mousePos);
+            Debug.Log(_actualIndex);
         }
 
         if( _actualIndex != -1) {
             if( _isFollowingMouse) {
                 var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
                 mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
-                mousePos.y = -mousePos.y;
+                // mousePos.y = -mousePos.y;
                 corners[_actualIndex] = mousePos;
             }
             else {
@@ -146,10 +148,10 @@ public class PerspectiveMappingCamera : MonoBehaviour
         _actualIndex = -1;
 
         corners = new Vector2[4];
-        corners[0] = - Vector2.up - Vector2.right;
-        corners[1] = - Vector2.right + Vector2.up; 
-        corners[2] = Vector2.up + Vector2.right; 
-        corners[3] = Vector2.right - Vector2.up;
+        corners[1] = - Vector2.up - Vector2.right;
+        corners[0] = - Vector2.right + Vector2.up;
+        corners[3] = Vector2.up + Vector2.right;
+        corners[2] = Vector2.right - Vector2.up;
     }
 
     public Vector2[] GetCornerListForShaderVector2() {
