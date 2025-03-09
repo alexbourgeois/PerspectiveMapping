@@ -114,8 +114,8 @@ Shader "CustomEffects/PerspectiveMappingShader"
             float3 color = (0,0,0);
 
             float2 uvTransformed = input.texcoord.xy;
-            uvTransformed.x = remap(uvTransformed.x, 0.5,1,0,1);
-            uvTransformed.y = remap(uvTransformed.y, 0,0.5,0,1);
+            uvTransformed.x = remap(uvTransformed.x, 0,1,-1,1);
+            uvTransformed.y = remap(uvTransformed.y, 0,1,-1,1);
 
             color.rgb = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, uvTransformed).rgb * (1.0-_TestPatternTexCoeff);
             color.rgb += SAMPLE_TEXTURE2D(_TestPatternTex, sampler_LinearClamp, uvTransformed).rgb *_TestPatternTexCoeff;
