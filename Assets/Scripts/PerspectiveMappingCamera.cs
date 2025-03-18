@@ -209,11 +209,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
     }
 
     public Vector2[] GetTargetListForShaderVector2() {
-        Vector2[] positions = new Vector2[4];
-        for (int i = 0; i < _handles.targets.Length; i++) {
-            positions[i] = _handles.targets[i].GetPosition();
-        }
-        return positions;
+        return targets;
     }
 
     public Vector2[] GetSourceListForShaderVector2() {
