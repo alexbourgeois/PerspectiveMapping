@@ -27,8 +27,6 @@ class Handles {
 
     public float magneticDistance = 0.2f;
 
-    public Matrix4x4 homography;
-
     private Handle[] all = new Handle[5]; // Center and Target handles
 
     public void SelectNone() {
@@ -37,6 +35,23 @@ class Handles {
 
     public void SelectClosestHandle(Vector2 mousePos) {
         this.current = GetClosestHandle(mousePos);
+    }
+
+    public Vector2[] GetTargetPositions() {
+        Vector2[] result = new Vector2[4];
+        for (int i = 0; i < this.targets.Length; i++) {
+            result[i] = this.targets[i].GetPosition();
+        }
+        return result;
+    }
+
+    public void SetTargetPositions(Vector2[] values) {
+        if (values.Length != 4)
+            throw new Exception("Expecting exactly 4 positions");
+
+        for (int i = 0; i < values.Length; i++) {
+            this.targets[i].SetPosition(values[i]);
+        }
     }
 
     public Handles() {
@@ -83,7 +98,6 @@ class Handles {
         // translate all targets
         public override void SetPosition(Vector2 pos) {
             Vector2 translation = pos - GetPosition();
-            Debug.Log(translation);
             foreach (Target target in _targets) {
                 target.SetPosition(target.GetPosition() + translation);
             }
@@ -119,7 +133,7 @@ class Handles {
         if (minDist > magneticDistance) 
             closest = this.none;
 
-        Debug.Log($"closest handle type: {closest.GetType()}");
+        // Debug.Log($"closest handle type: {closest.GetType()}");
         return closest;
     }
 

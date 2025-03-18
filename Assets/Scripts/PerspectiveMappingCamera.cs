@@ -8,7 +8,23 @@ using System;
 [RequireComponent(typeof(Camera))]
 public class PerspectiveMappingCamera : MonoBehaviour
 {
-    [HideInInspector] public Vector2[] invariants;
+    // coordinates of original handle position
+    // FIXME?: invariants can depend on aspect ratio
+    public Vector2[] invariants {
+        get { return _handles.sources; }
+        set {
+            _handles.sources = value;
+        }
+    }
+
+    // coordinates of warped handle position
+    public Vector2[] targets {
+        get { return _handles.GetTargetPositions(); }
+        set {
+            _handles.SetTargetPositions(value);
+        }
+    }
+
     [Header("Informations")]
     public bool interactable = false;
 
@@ -41,8 +57,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
     private Vector3 _multiDisplayOffset;
 
-    // [HideInInspector] public Matrix4x4 matrix;
-    public Matrix4x4 matrix;
+    [HideInInspector] public Matrix4x4 matrix;
 
     private Camera _cam;
 
@@ -54,8 +69,10 @@ public class PerspectiveMappingCamera : MonoBehaviour
             Display.displays[_cam.targetDisplay].Activate();
         }
 
+        // Debug.Log("OnEnable");
         ResetInvariants();
         LoadInvariants();
+        _currentInvariants = mappingInvariants;
     }
 
     void Update() {
@@ -90,6 +107,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
         if (mappingInvariants != _currentInvariants) {
             _currentInvariants = mappingInvariants;
+            // Debug.Log("mappingInvariants");
             ResetInvariants();
         }
 
@@ -97,7 +115,6 @@ public class PerspectiveMappingCamera : MonoBehaviour
             return;
         
         _handles.magneticDistance = this.magneticCornerDistance;
-        _handles.homography = this.matrix;
 
         Vector3 mainMousePos = Input.mousePosition;
         Vector3 relMousePos = Display.RelativeMouseAt( mainMousePos ); 
@@ -121,11 +138,11 @@ public class PerspectiveMappingCamera : MonoBehaviour
         if(Input.GetMouseButtonDown(0)) {
             _isFollowingMouse = true;
             var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
-            Debug.Log($"raw mouse: {mousePos}");
+            // Debug.Log($"raw mouse: {mousePos}");
             mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
             // mousePos.y = -mousePos.y;
             _handles.SelectClosestHandle(mousePos);
-            Debug.Log($"warped mouse: {mousePos}");
+            // Debug.Log($"warped mouse: {mousePos}");
             // Debug.Log($"source[0]: {_handles.sources[0]}");
             // Debug.Log($"target[0]: {_handles.targets[0].GetPosition()}");
         }
@@ -159,16 +176,31 @@ public class PerspectiveMappingCamera : MonoBehaviour
         SaveInvariants();
     }
 
+    // TODO?: keep transformation when switching invariants
+    // requires to apply homography on new invariant coordinates
     public void ResetInvariants() {
+        Debug.Log("Reset Invariants");
         Vector2[] sources = new Vector2[4];
         switch (mappingInvariants)
         {
             case MappingInvariants.Circle:
-                sources[1] = new Vector2(-1,-1);
-                sources[0] = new Vector2(-1, 1);
-                sources[3] = new Vector2( 1, 1);
-                sources[2] = new Vector2( 1,-1);
+                float a = 1; // horizontal radius
+                float b = 1; // vertical radius;
+
+                // FIXME: handles are wrong when aspect ratio changes
+                // -> reset invariants when aspect ratio changes ?
+                float aspect = GetASpectRatio(); // width/height
+                if (aspect > 1)
+                    a = 1 / aspect;
+                else if (aspect < 1)
+                    b = aspect;
+
+                sources[1] = new Vector2(-a, 0); // left of ellipse
+                sources[0] = new Vector2( 0, b); // top of ellipse
+                sources[3] = new Vector2( a, 0); // right of ellipse
+                sources[2] = new Vector2( 0,-b); // bottom of ellipse
                 break;
+
             default: // MappingInvariants.Corners
                 sources[1] = new Vector2(-1,-1);
                 sources[0] = new Vector2(-1, 1);
@@ -177,16 +209,23 @@ public class PerspectiveMappingCamera : MonoBehaviour
                 break;
         }
 
-        _handles.sources = sources;
+        invariants = sources;
     }
 
-    // TODO
-    public Vector2[] GetCornerListForShaderVector2() {
+    public Vector2[] GetTargetListForShaderVector2() {
         Vector2[] positions = new Vector2[4];
         for (int i = 0; i < _handles.targets.Length; i++) {
             positions[i] = _handles.targets[i].GetPosition();
         }
         return positions;
+    }
+
+    public Vector2[] GetSourceListForShaderVector2() {
+        Vector2[] sources = new Vector2[4];
+        for (int i = 0; i < invariants.Length; i++) {
+            sources[i] = remap(invariants[i], -1, 1, 0, 1);
+        }
+        return sources;
     }
 
     public float GetMouseCurrentDisplay()
@@ -198,10 +237,10 @@ public class PerspectiveMappingCamera : MonoBehaviour
         return _cam.aspect;
     }
 
-    // TODO
     public void SaveInvariants() {
         var config = new PerspectiveMappingDisplayConfig();
         config.invariants = invariants;
+        config.targets = targets;
         config.mappingInvariants = mappingInvariants;
         config.displayIndex = _cam.targetDisplay;
         var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", "display" + _cam.targetDisplay + "_config.json");
@@ -215,15 +254,15 @@ public class PerspectiveMappingCamera : MonoBehaviour
         Debug.Log("[PerspectiveMapping] Saved config file : " + path);
     }
 
-    // TODO
     public void LoadInvariants() {
         var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", "display" + _cam.targetDisplay + "_config.json");
         if(File.Exists(path)) {
             var data = File.ReadAllText(path);
             var config = JsonUtility.FromJson<PerspectiveMappingDisplayConfig>(data);
             invariants = config.invariants;
+            targets = config.targets;
             mappingInvariants = config.mappingInvariants;
-            //Debug.Log("[PerspectiveMapping] Loaded config file : " + path);
+            Debug.Log("[PerspectiveMapping] Loaded config file : " + path);
         }
     }
 
@@ -241,6 +280,13 @@ public class PerspectiveMappingCamera : MonoBehaviour
         return newMin + (normalizedValue * newRange);
     }
 
+    Vector2 remap(Vector2 value, float oldMin, float oldMax, float newMin, float newMax) {
+        var result = Vector2.zero;
+        result.x = remap(value.x, oldMin, oldMax, newMin, newMax);
+        result.y = remap(value.y, oldMin, oldMax, newMin, newMax);
+        return result;
+    }
+
     Vector3 remap(Vector3 value, float oldMin, float oldMax, float newMin, float newMax) {
         var result = Vector3.zero;
         result.x = remap(value.x, oldMin, oldMax, newMin, newMax);
@@ -255,6 +301,7 @@ public class PerspectiveMappingDisplayConfig {
     public int displayIndex;
     public MappingInvariants mappingInvariants;
     public Vector2[] invariants;
+    public Vector2[] targets;
 }
 
 public enum MappingInvariants {

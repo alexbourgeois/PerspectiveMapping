@@ -35,9 +35,10 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
     {
         if (material == null) return;
 
-        var _cornerPoints = perspCam.GetCornerListForShaderVector2();
+        var _cornerPoints = perspCam.GetTargetListForShaderVector2();
+        var _sourcePoints = perspCam.GetSourceListForShaderVector2();
 
-        FindHomography( defaultSettings.sourcePoints, _cornerPoints, ref perspCam.matrix );
+        FindHomography( _sourcePoints, _cornerPoints, ref perspCam.matrix );
         material.SetMatrix(homographyMatrixVarId, perspCam.matrix );
 
         material.SetColor(clearColorVarId, perspCam.clearColor);
