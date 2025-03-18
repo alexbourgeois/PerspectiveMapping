@@ -8,11 +8,14 @@ using System;
 [RequireComponent(typeof(Camera))]
 public class PerspectiveMappingCamera : MonoBehaviour
 {
-    [HideInInspector] public Vector2[] corners;
+    [HideInInspector] public Vector2[] invariants;
     [Header("Informations")]
     public bool interactable = false;
 
+    private MappingInvariants _currentInvariants = MappingInvariants.Corners;
+
     [Header("Controls settings")]
+    [SerializeField] public MappingInvariants mappingInvariants = MappingInvariants.Corners;
     [SerializeField] public KeyCode mappingModeHotkey = KeyCode.P;
     [SerializeField] public KeyCode resetMappingHotkey = KeyCode.R;
     [SerializeField] public KeyCode showTestPatternHotkey = KeyCode.O;
@@ -38,7 +41,8 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
     private Vector3 _multiDisplayOffset;
 
-    [HideInInspector] public Matrix4x4 matrix;
+    // [HideInInspector] public Matrix4x4 matrix;
+    public Matrix4x4 matrix;
 
     private Camera _cam;
 
@@ -50,13 +54,11 @@ public class PerspectiveMappingCamera : MonoBehaviour
             Display.displays[_cam.targetDisplay].Activate();
         }
 
-        ResetCorners();
-        LoadCorners();
+        ResetInvariants();
+        LoadInvariants();
     }
 
     void Update() {
-        _handles.magneticDistance = magneticCornerDistance;
-
         if(Input.GetKeyDown(mappingModeHotkey)) {
             #if !UNITY_EDITOR
                 if(GetMouseCurrentDisplay() != _cam.targetDisplay)
@@ -65,7 +67,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
             if(interactable) {
                 _isFollowingMouse = false;
-                SaveCorners();
+                SaveInvariants();
             }
             interactable = !interactable;
         }
@@ -75,7 +77,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
                 if(GetMouseCurrentDisplay() != _cam.targetDisplay)
                     return;
             #endif
-            ResetCorners();
+            ResetInvariants();
         }
 
         if(Input.GetKeyDown(showTestPatternHotkey)) {
@@ -86,9 +88,17 @@ public class PerspectiveMappingCamera : MonoBehaviour
             showTestPatternTexture = !showTestPatternTexture;
         }
 
+        if (mappingInvariants != _currentInvariants) {
+            _currentInvariants = mappingInvariants;
+            ResetInvariants();
+        }
+
         if(!interactable)
             return;
         
+        _handles.magneticDistance = this.magneticCornerDistance;
+        _handles.homography = this.matrix;
+
         Vector3 mainMousePos = Input.mousePosition;
         Vector3 relMousePos = Display.RelativeMouseAt( mainMousePos ); 
         
@@ -111,10 +121,13 @@ public class PerspectiveMappingCamera : MonoBehaviour
         if(Input.GetMouseButtonDown(0)) {
             _isFollowingMouse = true;
             var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
-            Debug.Log(mousePos);
+            Debug.Log($"raw mouse: {mousePos}");
             mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
             // mousePos.y = -mousePos.y;
             _handles.SelectClosestHandle(mousePos);
+            Debug.Log($"warped mouse: {mousePos}");
+            // Debug.Log($"source[0]: {_handles.sources[0]}");
+            // Debug.Log($"target[0]: {_handles.targets[0].GetPosition()}");
         }
 
         if( _handles.current.type != HandleType.None) {
@@ -143,20 +156,35 @@ public class PerspectiveMappingCamera : MonoBehaviour
     }
 
     void OnApplicationQuit() {
-        SaveCorners();
+        SaveInvariants();
     }
 
-    public void ResetCorners() {
-        _handles.corners[1].SetPosition( - Vector2.up    - Vector2.right );
-        _handles.corners[0].SetPosition( - Vector2.right + Vector2.up    );
-        _handles.corners[3].SetPosition(   Vector2.up    + Vector2.right );
-        _handles.corners[2].SetPosition(   Vector2.right - Vector2.up    );
+    public void ResetInvariants() {
+        Vector2[] sources = new Vector2[4];
+        switch (mappingInvariants)
+        {
+            case MappingInvariants.Circle:
+                sources[1] = new Vector2(-1,-1);
+                sources[0] = new Vector2(-1, 1);
+                sources[3] = new Vector2( 1, 1);
+                sources[2] = new Vector2( 1,-1);
+                break;
+            default: // MappingInvariants.Corners
+                sources[1] = new Vector2(-1,-1);
+                sources[0] = new Vector2(-1, 1);
+                sources[3] = new Vector2( 1, 1);
+                sources[2] = new Vector2( 1,-1);
+                break;
+        }
+
+        _handles.sources = sources;
     }
 
+    // TODO
     public Vector2[] GetCornerListForShaderVector2() {
         Vector2[] positions = new Vector2[4];
-        for (int i = 0; i < _handles.corners.Length; i++) {
-            positions[i] = _handles.corners[i].GetPosition();
+        for (int i = 0; i < _handles.targets.Length; i++) {
+            positions[i] = _handles.targets[i].GetPosition();
         }
         return positions;
     }
@@ -171,9 +199,10 @@ public class PerspectiveMappingCamera : MonoBehaviour
     }
 
     // TODO
-    public void SaveCorners() {
+    public void SaveInvariants() {
         var config = new PerspectiveMappingDisplayConfig();
-        config.corners = corners;
+        config.invariants = invariants;
+        config.mappingInvariants = mappingInvariants;
         config.displayIndex = _cam.targetDisplay;
         var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", "display" + _cam.targetDisplay + "_config.json");
         if(!File.Exists(path)) {
@@ -187,12 +216,13 @@ public class PerspectiveMappingCamera : MonoBehaviour
     }
 
     // TODO
-    public void LoadCorners() {
+    public void LoadInvariants() {
         var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", "display" + _cam.targetDisplay + "_config.json");
         if(File.Exists(path)) {
             var data = File.ReadAllText(path);
             var config = JsonUtility.FromJson<PerspectiveMappingDisplayConfig>(data);
-            corners = config.corners;
+            invariants = config.invariants;
+            mappingInvariants = config.mappingInvariants;
             //Debug.Log("[PerspectiveMapping] Loaded config file : " + path);
         }
     }
@@ -223,5 +253,12 @@ public class PerspectiveMappingCamera : MonoBehaviour
 [Serializable]
 public class PerspectiveMappingDisplayConfig {
     public int displayIndex;
-    public Vector2[] corners;
+    public MappingInvariants mappingInvariants;
+    public Vector2[] invariants;
 }
+
+public enum MappingInvariants {
+    Corners,
+    Circle,
+}
+

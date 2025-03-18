@@ -1,17 +1,35 @@
 using UnityEngine;
+using System;
 using static MathTools;
 
 class Handles {
-    public Handle none = new Handle();
-    public Corner[] corners = new Corner[4];
-    public CircleCorner[] circleCorners = new CircleCorner[4];
+    private Vector2[] _sources = new Vector2[4];
+
+    public Vector2[] sources {
+        get { return _sources; }
+        set {
+            if (value.Length != 4)
+                throw new Exception("Handles constructor requires exactly 4 source points");
+
+            for (int i = 0; i < value.Length; i++) {
+                this._sources[i] = value[i];
+                this.targets[i] = new Target(value[i]);
+                this.all[i] = this.targets[i];
+            }
+        }
+    }
+
+    public Handle none = new None();
+    public Target[] targets = new Target[4];
     public Center center;
 
     public Handle current;
 
     public float magneticDistance = 0.2f;
 
-    private Handle[] all = new Handle[9]; // Corners, Center and Circle Corners
+    public Matrix4x4 homography;
+
+    private Handle[] all = new Handle[5]; // Center and Target handles
 
     public void SelectNone() {
         this.current = this.none;
@@ -24,22 +42,13 @@ class Handles {
     public Handles() {
         int hIdx = 0;
 
-        for (int i = 0; i < corners.Length; i++) {
-            this.corners[i] = new Corner(Vector2.zero);
-            this.all[hIdx++] = this.corners[i];
+        for (int i = 0; i < targets.Length; i++) {
+            this.targets[i] = new Target(Vector2.zero);
+            this.all[hIdx++] = this.targets[i];
         }
 
-        this.center = new Center(this.corners);
+        this.center = new Center(this.targets);
         this.all[hIdx++] = this.center;
-
-        for (int i = 0; i < this.corners.Length; i++) {
-            this.circleCorners[i] = new CircleCorner(
-                    this.corners[i],
-                    this.center,
-                    this.corners
-                    );
-            this.all[hIdx++] = this.circleCorners[i];
-        }
 
         this.current = this.none;
     }
@@ -57,85 +66,43 @@ class Handles {
         }
     }
 
-    public class Center: Handle {
-        private Corner[] _corners;
+    public class None: Handle {
+        public None() {
+            this.type = HandleType.None;
+        }
+    }
 
-        public Center(Corner[] corners) {
+    public class Center: Handle {
+        private Target[] _targets;
+
+        public Center(Target[] targets) {
             this.type = HandleType.Center;
-            this._corners = corners;
+            this._targets = targets;
         }
 
-        // translate all corners
+        // translate all targets
         public override void SetPosition(Vector2 pos) {
             Vector2 translation = pos - GetPosition();
             Debug.Log(translation);
-            foreach (Corner corner in _corners) {
-                corner.SetPosition(corner.GetPosition() + translation);
+            foreach (Target target in _targets) {
+                target.SetPosition(target.GetPosition() + translation);
             }
         }
 
-        // Intersection of diagonals between corners
+        // Intersection of diagonals between targets
         public override Vector2 GetPosition() {
-            Vector2[] cornerPositions = new Vector2[4];
-            for (int i = 0; i < this._corners.Length; i++) {
-                cornerPositions[i] = this._corners[i].GetPosition();
+            Vector2[] targetPositions = new Vector2[4];
+            for (int i = 0; i < this._targets.Length; i++) {
+                targetPositions[i] = this._targets[i].GetPosition();
             }
-            return MathTools.QuadrilateralCenter(cornerPositions);
+            return MathTools.QuadrilateralCenter(targetPositions);
         }
     }
 
-    public class Corner: Handle {
-        public Corner(Vector2 pos) {
-            this.type = HandleType.Corner;
+    public class Target: Handle {
+        public Target(Vector2 pos) {
+            this.type = HandleType.Target;
             this.SetPosition(pos);
-        }
-    }
-
-    public class CircleCorner: Handle {
-        private Corner _corner;
-        private Center _center;
-        private Corner[] _corners;
-
-        public CircleCorner(Corner corner, Center center, Corner[] corners) {
-            this.type = HandleType.CircleCorner;
-            this._corner = corner;
-            this._center = center;
-            this._corners = corners;
-        }
-
-        // set corresponding corner position
-        public override void SetPosition(Vector2 pos) {
-            Vector2[] circleCornerPos = new Vector2[4];
-            for (int i = 0; i < _corners.Length; i++) {
-                if (_corners[i] == this._corner)
-                    circleCornerPos[i] = pos;
-                else
-                    circleCornerPos[i] = GetCircleCornerPosition(_corners[i]);
-            }
-
-            // new center will be the intersections of diagonals of corners
-            // which is also intersection of diagonals of circle corners
-            Vector2 newCenterPos = MathTools.QuadrilateralCenter(circleCornerPos);
-            Debug.Log($"New Center: {newCenterPos}");
-
-            Vector2 cornerPos = newCenterPos + (pos-newCenterPos) * Mathf.Sqrt(2);
-            Debug.Log($"New corner: {cornerPos}");
-            _corner.SetPosition(cornerPos);
-        }
-
-        private Vector2 GetCircleCornerPosition(Corner corner) {
-            Vector2 centerPos = _center.GetPosition();
-            Vector2 cornerPos = corner.GetPosition();
-            return centerPos + (cornerPos-centerPos) * Mathf.Sqrt(2) / 2f;
-        }
-
-        public override Vector2 GetPosition() {
-            Debug.Log($"Circle corner: {GetCircleCornerPosition(_corner)}");
-            return GetCircleCornerPosition(_corner);
-        }
-
-        public Corner GetCorner() {
-            return _corner;
         }
     }
 
@@ -152,7 +119,7 @@ class Handles {
         if (minDist > magneticDistance) 
             closest = this.none;
 
-        Debug.Log(closest.GetType());
+        Debug.Log($"closest handle type: {closest.GetType()}");
         return closest;
     }
 
@@ -167,7 +134,6 @@ class Handles {
 public enum HandleType {
     None,
     Center,
-    Corner,
-    CircleCorner,
+    Target,
 }
 
