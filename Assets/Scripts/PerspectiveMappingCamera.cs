@@ -155,20 +155,16 @@ public class PerspectiveMappingCamera : MonoBehaviour
                 _handles.current.SetPosition(mousePos);
             }
             else {
-               
-
                 // Translate.
                 Vector2 delta = new Vector2( Input.GetAxisRaw( "Horizontal" ), Input.GetAxisRaw( "Vertical" ) * _cam.aspect ) * 0.1f;
                 if( Input.GetKey( KeyCode.LeftShift ) || Input.GetKey( KeyCode.RightShift ) ) delta *= 10;
                 else if(  Input.GetKey( KeyCode.LeftControl ) || Input.GetKey( KeyCode.RightControl ) ) delta *= 0.2f;
                 _handles.current.SetPosition(_handles.current.GetPosition() + delta * Time.deltaTime);
-                    
             }
         }
 
         if(Input.GetMouseButtonUp(0)) {
              _isFollowingMouse = false;
-             _handles.SelectNone();
         }
     }
 
@@ -179,7 +175,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
     // TODO?: keep transformation when switching invariants
     // requires to apply homography on new invariant coordinates
     public void ResetInvariants() {
-        Debug.Log("Reset Invariants");
+        // Debug.Log("Reset Invariants");
         Vector2[] sources = new Vector2[4];
         switch (mappingInvariants)
         {
