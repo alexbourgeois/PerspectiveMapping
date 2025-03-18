@@ -103,6 +103,7 @@ class Handles {
             }
         }
 
+        // TODO: use homography instead
         // Intersection of diagonals between targets
         public override Vector2 GetPosition() {
             Vector2[] targetPositions = new Vector2[4];
