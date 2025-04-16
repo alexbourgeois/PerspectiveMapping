@@ -101,6 +101,11 @@ Shader "CustomEffects/PerspectiveMappingShader"
             float4 pos = GetFullScreenTriangleVertexPosition(input.vertexID);
             float2 uv  = GetFullScreenTriangleTexCoord(input.vertexID);
 
+	    #if UNITY_UV_STARTS_AT_TOP
+            // pos.y = 1 - pos.y;
+            // uv.y = 1 - uv.y;
+	    #endif
+
             output.positionCS = mul(_HomographyMatrix, pos);
             output.texcoord   = DYNAMIC_SCALING_APPLY_SCALEBIAS(uv);
 
@@ -114,8 +119,14 @@ Shader "CustomEffects/PerspectiveMappingShader"
             float3 color = (0,0,0);
 
             float2 uvTransformed = input.texcoord.xy;
-            uvTransformed.x = remap(uvTransformed.x, 0,1,-1,1);
-            uvTransformed.y = remap(uvTransformed.y, 0,1,-1,1);
+
+            if (_ProjectionParams.x < 0)
+                uvTransformed.y = 1 - uvTransformed.y;
+
+            // uvTransformed.x = remap(uvTransformed.x, 0,1,-1,1);
+            // uvTransformed.y = remap(uvTransformed.y, 0,1,-1,1);
+            uvTransformed.x = remap(uvTransformed.x, 0.5,1,0,1);
+            uvTransformed.y = remap(uvTransformed.y, 0.5,1,0,1);
 
             color.rgb = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, uvTransformed).rgb * (1.0-_TestPatternTexCoeff);
             color.rgb += SAMPLE_TEXTURE2D(_TestPatternTex, sampler_LinearClamp, uvTransformed).rgb *_TestPatternTexCoeff;
@@ -127,6 +138,7 @@ Shader "CustomEffects/PerspectiveMappingShader"
                 color.rgb =_ClearColor;
 
             // ANTIALIASING
+	    // TODO: fix for opengl?
             float2 pos = uvTransformed + 0.5;
 			float2 f  = abs( frac( pos ) - 0.5 );
 			float2 df = fwidth( pos ) * 0.7;
