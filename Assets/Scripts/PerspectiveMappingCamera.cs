@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 using System;
-
+using UnityEngine.Rendering;
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
@@ -210,53 +210,23 @@ public class PerspectiveMappingCamera : MonoBehaviour
         invariants = sources;
     }
 
-    public Vector2[] GetTargetListForShaderVector2() {
-        var _targets = targets;
-        //Rearrange corner order to match OS
-        #if UNITY_STANDALONE_WINDOWS || UNITY_EDITOR_WIN
-            var targetTemp = _targets[0];
-            _targets[0] = _targets[1]; // top left
-            _targets[1] = targetTemp; // bottom left
-
-            targetTemp = _targets[2];
-            _targets[2] = _targets[3]; // bottom right
-            _targets[3] = targetTemp; // top right
-
-            //Invert corner and source Y axis
-            for (int i = 0; i < _targets.Length; i++)
-            {
-                _targets[i].y = -_targets[i].y;
-            }
-        #endif
-
-        return _targets;
+    public Vector2[] GetTargetListForShaderVector2() { //Coordinates between -1 and 1
+        var result = new Vector2[ targets.Length];
+        for (int i = 0; i < targets.Length; i++)
+        {
+            result[i] = targets[i];
+        } 
+        return result;
     }
 
-    public Vector2[] GetSourceListForShaderVector2() {
-        Vector2[] sources = new Vector2[4];
-        //Change OpenGL coordinates to DirectX coordinates
-        for (int i = 0; i < invariants.Length; i++) {
-            sources[i] = remap(invariants[i], -1, 1, 0, 1);
-        }
+    public Vector2[] GetSourceListForShaderVector2() { //Coordinates between -1 and 1
+        var result = new Vector2[invariants.Length];
+        for (int i = 0; i < invariants.Length; i++)
+        {
+            result[i] = invariants[i];
+        } 
 
-        //Rearrange corner order to match OS
-        #if UNITY_STANDALONE_WINDOWS || UNITY_EDITOR_WIN
-            var sourceTemp = sources[0];
-            sources[0] = sources[1]; // top left
-            sources[1] = sourceTemp; // bottom left
-
-            sourceTemp = sources[2];
-            sources[2] = sources[3]; // bottom right
-            sources[3] = sourceTemp; // top right
-
-            //Invert corner and source Y axis
-            for (int i = 0; i < sources.Length; i++)
-            {
-                sources[i].y = -sources[i].y;
-            }
-        #endif
-         
-        return sources;
+        return result;
     }
 
     public float GetMouseCurrentDisplay()
@@ -297,7 +267,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
         }
     }
 
-    float remap(float value, float oldMin, float oldMax, float newMin, float newMax)
+    public static float remap(float value, float oldMin, float oldMax, float newMin, float newMax)
     {
         // S'assurer que nous ne divisons pas par zéro
         float oldRange = oldMax - oldMin;
@@ -311,14 +281,14 @@ public class PerspectiveMappingCamera : MonoBehaviour
         return newMin + (normalizedValue * newRange);
     }
 
-    Vector2 remap(Vector2 value, float oldMin, float oldMax, float newMin, float newMax) {
+    public static Vector2 remap(Vector2 value, float oldMin, float oldMax, float newMin, float newMax) {
         var result = Vector2.zero;
         result.x = remap(value.x, oldMin, oldMax, newMin, newMax);
         result.y = remap(value.y, oldMin, oldMax, newMin, newMax);
         return result;
     }
 
-    Vector3 remap(Vector3 value, float oldMin, float oldMax, float newMin, float newMax) {
+    public static Vector3 remap(Vector3 value, float oldMin, float oldMax, float newMin, float newMax) {
         var result = Vector3.zero;
         result.x = remap(value.x, oldMin, oldMax, newMin, newMax);
         result.y = remap(value.y, oldMin, oldMax, newMin, newMax);
