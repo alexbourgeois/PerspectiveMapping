@@ -11,17 +11,17 @@ public class PerspectiveMappingCamera : MonoBehaviour
     // coordinates of original handle position
     // FIXME?: invariants can depend on aspect ratio
     public Vector2[] invariants {
-        get { return _handles.sources; }
+        get { return handles.sources; }
         set {
-            _handles.sources = value;
+            handles.sources = value;
         }
     }
 
     // coordinates of warped handle position
     public Vector2[] targets {
-        get { return _handles.GetTargetPositions(); }
+        get { return handles.GetTargetPositions(); }
         set {
-            _handles.SetTargetPositions(value);
+            handles.SetTargetPositions(value);
         }
     }
 
@@ -53,7 +53,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
     
     private bool _isFollowingMouse = false;
 
-    private Handles _handles = new Handles();
+    public MappingHandles handles = new MappingHandles();
 
     private Vector3 _multiDisplayOffset;
 
@@ -114,7 +114,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
         if(!interactable)
             return;
         
-        _handles.magneticDistance = this.magneticCornerDistance;
+        handles.magneticDistance = this.magneticCornerDistance;
 
         Vector3 mainMousePos = Input.mousePosition;
         Vector3 relMousePos = Display.RelativeMouseAt( mainMousePos ); 
@@ -130,7 +130,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
         #if !UNITY_EDITOR
             if( GetMouseCurrentDisplay() != _cam.targetDisplay ) {
-                _handles.SelectNone();
+                handles.SelectNone();
                 return;
             }
         #endif
@@ -138,28 +138,28 @@ public class PerspectiveMappingCamera : MonoBehaviour
         if(Input.GetMouseButtonDown(0)) {
             _isFollowingMouse = true;
             var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
-            // Debug.Log($"raw mouse: {mousePos}");
             mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
-            // mousePos.y = -mousePos.y;
-            _handles.SelectClosestHandle(mousePos);
+             Debug.Log($"raw mouse: {mousePos}");
+            handles.SelectClosestHandle(mousePos);
             // Debug.Log($"warped mouse: {mousePos}");
-            // Debug.Log($"source[0]: {_handles.sources[0]}");
-            // Debug.Log($"target[0]: {_handles.targets[0].GetPosition()}");
+            // Debug.Log($"source[0]: {handles.sources[0]}");
+            // Debug.Log($"target[0]: {handles.targets[0].GetPosition()}");
         }
 
-        if( _handles.current.type != HandleType.None) {
+        if( handles.current.type != HandleType.None) {
             if( _isFollowingMouse) {
                 var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
                 mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
-                // mousePos.y = -mousePos.y;
-                _handles.current.SetPosition(mousePos);
+                Debug.Log($"raw mouse: {mousePos}");
+                handles.SelectClosestHandle(mousePos);
+                handles.current.SetPosition(mousePos);
             }
             else {
                 // Translate.
                 Vector2 delta = new Vector2( Input.GetAxisRaw( "Horizontal" ), Input.GetAxisRaw( "Vertical" ) * _cam.aspect ) * 0.1f;
                 if( Input.GetKey( KeyCode.LeftShift ) || Input.GetKey( KeyCode.RightShift ) ) delta *= 10;
                 else if(  Input.GetKey( KeyCode.LeftControl ) || Input.GetKey( KeyCode.RightControl ) ) delta *= 0.2f;
-                _handles.current.SetPosition(_handles.current.GetPosition() + delta * Time.deltaTime);
+                handles.current.SetPosition(handles.current.GetPosition() + delta * Time.deltaTime);
             }
         }
 
@@ -191,6 +191,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
                 else if (aspect < 1)
                     b = aspect;
 
+                //OpenGL coordinates
                 sources[1] = new Vector2(-a, 0); // left of ellipse
                 sources[0] = new Vector2( 0, b); // top of ellipse
                 sources[3] = new Vector2( a, 0); // right of ellipse
@@ -198,6 +199,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
                 break;
 
             default: // MappingInvariants.Corners
+                //OpenGL coordinates
                 sources[1] = new Vector2(-1,-1);
                 sources[0] = new Vector2(-1, 1);
                 sources[3] = new Vector2( 1, 1);
@@ -209,14 +211,51 @@ public class PerspectiveMappingCamera : MonoBehaviour
     }
 
     public Vector2[] GetTargetListForShaderVector2() {
-        return targets;
+        var _targets = targets;
+        //Rearrange corner order to match OS
+        #if UNITY_STANDALONE_WINDOWS || UNITY_EDITOR_WIN
+            var targetTemp = _targets[0];
+            _targets[0] = _targets[1]; // top left
+            _targets[1] = targetTemp; // bottom left
+
+            targetTemp = _targets[2];
+            _targets[2] = _targets[3]; // bottom right
+            _targets[3] = targetTemp; // top right
+
+            //Invert corner and source Y axis
+            for (int i = 0; i < _targets.Length; i++)
+            {
+                _targets[i].y = -_targets[i].y;
+            }
+        #endif
+
+        return _targets;
     }
 
     public Vector2[] GetSourceListForShaderVector2() {
         Vector2[] sources = new Vector2[4];
+        //Change OpenGL coordinates to DirectX coordinates
         for (int i = 0; i < invariants.Length; i++) {
             sources[i] = remap(invariants[i], -1, 1, 0, 1);
         }
+
+        //Rearrange corner order to match OS
+        #if UNITY_STANDALONE_WINDOWS || UNITY_EDITOR_WIN
+            var sourceTemp = sources[0];
+            sources[0] = sources[1]; // top left
+            sources[1] = sourceTemp; // bottom left
+
+            sourceTemp = sources[2];
+            sources[2] = sources[3]; // bottom right
+            sources[3] = sourceTemp; // top right
+
+            //Invert corner and source Y axis
+            for (int i = 0; i < sources.Length; i++)
+            {
+                sources[i].y = -sources[i].y;
+            }
+        #endif
+         
         return sources;
     }
 

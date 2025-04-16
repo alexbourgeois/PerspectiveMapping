@@ -1,8 +1,7 @@
 using UnityEngine;
 using System;
-using static MathTools;
 
-class Handles {
+public class MappingHandles {
     private Vector2[] _sources = new Vector2[4];
 
     public Vector2[] sources {
@@ -27,7 +26,7 @@ class Handles {
 
     public float magneticDistance = 0.2f;
 
-    private Handle[] all = new Handle[5]; // Center and Target handles
+    public Handle[] all = new Handle[5]; // Center and Target handles
 
     public void SelectNone() {
         this.current = this.none;
@@ -54,7 +53,7 @@ class Handles {
         }
     }
 
-    public Handles() {
+    public MappingHandles() {
         int hIdx = 0;
 
         for (int i = 0; i < targets.Length; i++) {
