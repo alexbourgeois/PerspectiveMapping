@@ -80,7 +80,7 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
             _points[3] = targetTemp; // top right
         }
 
-        #if UNITY_EDITOR 
+       // #if UNITY_EDITOR 
             if(SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D12 || 
                 SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D11 || 
                 SystemInfo.graphicsDeviceType == GraphicsDeviceType.Vulkan) {
@@ -91,14 +91,14 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
                     _points[i].y = -_points[i].y;
                 }
             }
-        #else
+     /*   #else
             Debug.Log("opposite on corner Y axis");
             //Invert corner and source Y axis
             for (int i = 0; i < _points.Length; i++)
             {
                 _points[i].y = 1.0f-_points[i].y;
             }
-        #endif
+        #endif*/
 
         return _points;
     }
