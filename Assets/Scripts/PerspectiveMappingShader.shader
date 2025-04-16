@@ -123,15 +123,14 @@ Shader "CustomEffects/PerspectiveMappingShader"
 
             float2 uvTransformed = input.texcoord.xy;
             
-            #if !IS_OPENGL 
-                uvTransformed.x = remap(uvTransformed.x, 0,1,-1,1);
-                uvTransformed.y = remap(uvTransformed.y, 0,1,-1,1);
-            #else
-                //uvTransformed.x = remap(uvTransformed.x, 0,2,-1,1);
-                //uvTransformed.y = remap(uvTransformed.y, 0,2,-1,1); 
+            #if IS_OPENGL
+                //uvTransformed.x = remap(uvTransformed.x, 0,1,-1,1);
+                //uvTransformed.y = remap(uvTransformed.y, 0,1,-1,1); 
+            #endif
+            
+            #if IS_VULKAN
                 //uvTransformed.y = -uvTransformed.y;
             #endif
-
             color.rgb = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, uvTransformed).rgb * (1.0-_TestPatternTexCoeff);
             color.rgb += SAMPLE_TEXTURE2D(_TestPatternTex, sampler_LinearClamp, uvTransformed).rgb *_TestPatternTexCoeff;
 

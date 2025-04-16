@@ -43,6 +43,9 @@ public class PerspectiveMappingUI : MonoBehaviour
             var img = rectTransform.GetComponent<Image>();
             if(handle == perspectiveMappingCamera.handles.center) {
                 img.color = Color.yellow; // Set color of the handle
+                if(handle == perspectiveMappingCamera.handles.current) {
+                    img.color = Color.green; // Set color of the handle
+                }
             } else {
                 img.color = Color.red; // Set color of the handle
             }
