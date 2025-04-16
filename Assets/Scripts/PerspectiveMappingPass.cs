@@ -65,41 +65,15 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
 
     private Vector2[] PlatformSpecificCoordinates(Vector2[] _points) {
 
-       //Rearrange corner order to match OS
         if(SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D12 || 
             SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D11 || 
-            SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3 ||
             SystemInfo.graphicsDeviceType == GraphicsDeviceType.Vulkan) {
-            //Debug.Log("Inverting corner order");
-            var targetTemp = _points[0];
-            _points[0] = _points[1]; // top left
-            _points[1] = targetTemp; // bottom left
-
-            targetTemp = _points[2];
-            _points[2] = _points[3]; // bottom right
-            _points[3] = targetTemp; // top right
-        }
-
-       // #if UNITY_EDITOR 
-            if(SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D12 || 
-                SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D11 || 
-                SystemInfo.graphicsDeviceType == GraphicsDeviceType.Vulkan) {
-                //Debug.Log("opposite on corner Y axis");
-                //Invert corner and source Y axis
-                for (int i = 0; i < _points.Length; i++)
-                {
-                    _points[i].y = -_points[i].y;
-                }
-            }
-     /*   #else
-            Debug.Log("opposite on corner Y axis");
             //Invert corner and source Y axis
             for (int i = 0; i < _points.Length; i++)
             {
-                _points[i].y = 1.0f-_points[i].y;
+                _points[i].y = -_points[i].y;
             }
-        #endif*/
-
+        }
         return _points;
     }
 
