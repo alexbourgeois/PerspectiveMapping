@@ -69,13 +69,13 @@ public class PerspectiveMappingCamera : MonoBehaviour
             Display.displays[_cam.targetDisplay].Activate();
         }
 
-        // Debug.Log("OnEnable");
         ResetInvariants();
         LoadInvariants();
         _currentInvariants = mappingInvariants;
     }
 
     void Update() {
+
         if(Input.GetKeyDown(mappingModeHotkey)) {
             #if !UNITY_EDITOR
                 if(GetMouseCurrentDisplay() != _cam.targetDisplay)
@@ -107,13 +107,12 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
         if (mappingInvariants != _currentInvariants) {
             _currentInvariants = mappingInvariants;
-            // Debug.Log("mappingInvariants");
             ResetInvariants();
         }
 
         if(!interactable)
             return;
-        
+
         handles.magneticDistance = this.magneticCornerDistance;
 
         Vector3 mainMousePos = Input.mousePosition;
@@ -124,6 +123,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
             _multiDisplayOffset = mainMousePos - relMousePos;
             _multiDisplayOffset.z = 0;
         }
+
         #if UNITY_EDITOR
             _multiDisplayOffset = Vector3.zero;
         #endif
@@ -139,18 +139,13 @@ public class PerspectiveMappingCamera : MonoBehaviour
             _isFollowingMouse = true;
             var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
             mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
-             Debug.Log($"raw mouse: {mousePos}");
             handles.SelectClosestHandle(mousePos);
-            // Debug.Log($"warped mouse: {mousePos}");
-            // Debug.Log($"source[0]: {handles.sources[0]}");
-            // Debug.Log($"target[0]: {handles.targets[0].GetPosition()}");
         }
 
         if( handles.current.type != HandleType.None) {
             if( _isFollowingMouse) {
                 var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
                 mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
-                Debug.Log($"raw mouse: {mousePos}");
                 handles.SelectClosestHandle(mousePos);
                 handles.current.SetPosition(mousePos);
             }

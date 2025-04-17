@@ -123,24 +123,14 @@ Shader "CustomEffects/PerspectiveMappingShader"
 
             float2 uvTransformed = input.texcoord.xy;
             
-            #if IS_OPENGL
-                //uvTransformed.x = remap(uvTransformed.x, 0,1,-1,1);
-                //uvTransformed.y = remap(uvTransformed.y, 0,1,-1,1); 
-            #endif
-            
-            #if IS_VULKAN
-                //uvTransformed.y = -uvTransformed.y;
-            #endif
             color.rgb = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, uvTransformed).rgb * (1.0-_TestPatternTexCoeff);
             color.rgb += SAMPLE_TEXTURE2D(_TestPatternTex, sampler_LinearClamp, uvTransformed).rgb *_TestPatternTexCoeff;
 
             float grid = ComputeGrid( uvTransformed ) * _ShowGrid;
             color = color + grid;
             
-            #if IS_DIRECTX || IS_VULKAN
-                if(uvTransformed.x<0 || uvTransformed.y<0 || uvTransformed.x>1 || uvTransformed.y>1)
-                    color.rgb =_ClearColor;
-            #endif
+            if(uvTransformed.x<0 || uvTransformed.y<0 || uvTransformed.x>1 || uvTransformed.y>1)
+                color.rgb =_ClearColor;
 
             //TODO fix ANTIALIASING 
             float2 pos = uvTransformed + 0.5;
