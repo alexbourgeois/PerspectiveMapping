@@ -158,7 +158,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
             if (_isFollowingMouse) {
                 var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
                 mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
-                handles.current.SetPosition(mousePos);
+                handles.SetPosition(handles.current, mousePos);
             }
             else {
                 // Translate.
@@ -172,7 +172,6 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
     public void UpdateKeyboard()
     {
-
         //Using number keys to select handles
         if (Input.GetKeyUp(KeyCode.Alpha1) || Input.GetKeyUp(KeyCode.Keypad1))
         {
