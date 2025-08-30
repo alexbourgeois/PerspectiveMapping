@@ -2,100 +2,137 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[ExecuteInEditMode]
 [RequireComponent(typeof(PerspectiveMappingCamera))]
 public class PerspectiveMappingUI : MonoBehaviour
 {
-    public PerspectiveMappingCamera perspectiveMappingCamera;
+    [Header("UI Customisation")]
+    [Range(10f, 100f)]
+    public float handleSize = 20f;
+    public Color idleHandleColor = Color.darkCyan;
+    public Color selectedHandleColor = Color.darkOrange;
 
+    private PerspectiveMappingCamera _perspectiveMappingCamera;
+
+    //UI elements
     private RectTransform _canvasRt;
-    private List<Image> _handlesImgs;
-    void OnEnable()
+    private List<Image> _handlesImgs = new List<Image>();
+    private List<RectTransform> _handlesRts = new List<RectTransform>();
+
+
+    public bool forceSetupUI;
+    public bool forceCleanUpUI;
+
+
+
+    void Start()
     {
-        perspectiveMappingCamera = GetComponent<PerspectiveMappingCamera>();
-        //Remove all children
-        for (int i = transform.childCount - 1; i >= 0; i--)
-        {
-            DestroyImmediate(transform.GetChild(i).gameObject);
-        }
+        _perspectiveMappingCamera = GetComponent<PerspectiveMappingCamera>();
         SetupCanvas();
     }
 
     void Update()
     {
         UpdateHandles();
+
+        if (forceSetupUI)
+        {
+            forceSetupUI = false;
+            SetupCanvas();
+        }
+        if (forceCleanUpUI)
+        {
+            forceCleanUpUI = false;
+            CleanUpUI();
+        }
     }
 
     public void UpdateHandles()
     {
-        // Update the handles based on the current perspective mapping camera settings
-        for (int i = 0; i < _handlesImgs.Count; i++)
+        if (_canvasRt == null)
+            return;
+        
+        if (!_perspectiveMappingCamera.interactable)
         {
-            MappingHandles.Handle handle = perspectiveMappingCamera.handles.all[i];
-            RectTransform rectTransform = _canvasRt.GetChild(i).GetComponent<RectTransform>();
-            if (rectTransform != null)
+            _canvasRt.gameObject.SetActive(false);
+            return;
+        }
+        else
+        {
+            _canvasRt.gameObject.SetActive(true);
+        }
+
+        // Update the handles based on the current perspective mapping camera settings
+        for (int i = 0; i < _handlesRts.Count; i++)
+        {
+            MappingHandles.Handle handle = _perspectiveMappingCamera.handles.all[i];
+            if (_handlesRts[i] != null)
             {
-                var posX = handle.GetPosition().x * _canvasRt.rect.width/2.0f;
-                var posY = handle.GetPosition().y * _canvasRt.rect.height/2.0f;
-                rectTransform.anchoredPosition = new Vector2(posX, posY); // Set position of the handle
+                var posX = handle.GetPosition().x * _canvasRt.rect.width / 2.0f;
+                var posY = handle.GetPosition().y * _canvasRt.rect.height / 2.0f;
+                _handlesRts[i].anchoredPosition = new Vector2(posX, posY); // Set position of the handle
+                _handlesRts[i].sizeDelta = new Vector2(handleSize, handleSize);
             }
-            
-            var img = rectTransform.GetComponent<Image>();
-            if(handle == perspectiveMappingCamera.handles.center) {
-                img.color = Color.yellow; // Set color of the handle
-                if(handle == perspectiveMappingCamera.handles.current) {
-                    img.color = Color.green; // Set color of the handle
-                }
-            } else {
-                img.color = Color.red; // Set color of the handle
+
+            var img = _handlesImgs[i];
+            if (handle == _perspectiveMappingCamera.handles.current)
+            {
+                img.color = selectedHandleColor; // Set color of the handle
             }
-            if(handle == perspectiveMappingCamera.handles.current) {
-                img.color = Color.green; // Set color of the handle
-            } else {
-                img.color = Color.red; // Set color of the handle
+            else
+            {
+                img.color = idleHandleColor; // Set color of the handle
             }
         }
     }
 
-    void SetupCanvas() {
-        // Set up the canvas for the perspective mapping UI
-        Canvas canvas = GetComponent<Canvas>();
-        if (canvas == null)
-        {
-            GameObject canvasGO = new GameObject("PerspectiveMapping_Canvas");
-            canvas = canvasGO.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.targetDisplay = this.GetComponent<Camera>().targetDisplay;
-        }
+    public void SetupCanvas()
+    {
+
+        GameObject canvasGO = new GameObject("PerspectiveMapping_Canvas");
+        var canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.targetDisplay = this.GetComponent<Camera>().targetDisplay;
         canvas.transform.SetParent(this.transform, false);
         canvas.sortingOrder = 1000; // Set a high sorting order to ensure it appears above other UI elements
+
+        Debug.Log("[PerspectiveMappingUI] Setting up PerspectiveMapping UI on display " + canvas.targetDisplay);
 
         _canvasRt = canvas.GetComponent<RectTransform>();
         _canvasRt.anchoredPosition3D = Vector3.zero;
 
-        _handlesImgs = new List<Image>();
-
         //Add an Image for each Handle
-        for (int i = 0; i < perspectiveMappingCamera.handles.all.Length; i++)
+        for (int i = 0; i < _perspectiveMappingCamera.handles.all.Length; i++)
         {
-            MappingHandles.Handle handle = perspectiveMappingCamera.handles.all[i];
+            MappingHandles.Handle handle = _perspectiveMappingCamera.handles.all[i];
 
             GameObject handleObject = new GameObject("Handle_" + i);
             handleObject.transform.SetParent(canvas.transform);
+
             RectTransform rectTransform = handleObject.AddComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(20, 20); // Set size of the handle
-            var posX = handle.GetPosition().x * _canvasRt.rect.width/2.0f;
-            var posY = handle.GetPosition().y * _canvasRt.rect.height/2.0f;
+            rectTransform.sizeDelta = new Vector2(handleSize, handleSize); // Set size of the handle
+            var posX = handle.GetPosition().x * _canvasRt.rect.width / 2.0f;
+            var posY = handle.GetPosition().y * _canvasRt.rect.height / 2.0f;
             rectTransform.anchoredPosition = new Vector2(posX, posY); // Set position of the handle
 
+            _handlesRts.Add(rectTransform);
+
             Image image = handleObject.AddComponent<Image>();
-            if(handle == perspectiveMappingCamera.handles.center) {
-                image.color = Color.yellow; // Set color of the handle
-            } else {
-                image.color = Color.red; // Set color of the handle
-            }
+            image.color = idleHandleColor; // Set color of the handle
 
             _handlesImgs.Add(image);
+        }
+    }
+
+    public void CleanUpUI()
+    {
+        Debug.Log("[PerspectiveMappingUI] Cleaning up PerspectiveMapping UI");
+        if (_canvasRt != null)
+        {
+            Destroy(_canvasRt.gameObject);
+            _canvasRt = null;
+
+            _handlesImgs.Clear();
+            _handlesRts.Clear();
         }
     }
 }
