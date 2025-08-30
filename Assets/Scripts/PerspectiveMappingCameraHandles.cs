@@ -33,11 +33,16 @@ public class MappingHandles {
         this.current = this.none;
     }
 
-    public void SelectHandle(int index) {
-        if (index < 0 || index >= this.targets.Length)
+    // index: 1-4 for target handles, 5 for center handle
+    public void SelectHandle(int index)
+    {
+        if (index < 1 || index > 5)
             throw new Exception("Handle index out of range");
 
-        this.current = this.targets[index];
+        if (index == 5) // Center handle
+            this.current = this.center;
+        else
+            this.current = this.targets[index-1];
     }
 
     public void SelectClosestHandle(Vector2 mousePos)
