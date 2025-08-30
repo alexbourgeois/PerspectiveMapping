@@ -165,7 +165,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
                 Vector2 delta = new Vector2( Input.GetAxisRaw( "Horizontal" ), Input.GetAxisRaw( "Vertical" ) * _cam.aspect ) * 0.1f;
                 if (Input.GetKey( KeyCode.LeftShift ) || Input.GetKey( KeyCode.RightShift ) ) delta *= 10;
                 else if (Input.GetKey( KeyCode.LeftControl ) || Input.GetKey( KeyCode.RightControl ) ) delta *= 0.2f;
-                handles.current.SetPosition(handles.current.GetPosition() + delta * Time.deltaTime);
+                handles.SetPosition(handles.current, handles.current.GetPosition() + delta * Time.deltaTime);
             }
         }
     }
