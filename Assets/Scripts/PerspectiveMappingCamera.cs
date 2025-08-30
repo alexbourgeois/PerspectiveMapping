@@ -33,6 +33,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
     [SerializeField] public KeyCode mappingModeHotkey = KeyCode.P;
     [SerializeField] public KeyCode resetMappingHotkey = KeyCode.R;
     [SerializeField] public KeyCode showTestPatternHotkey = KeyCode.O;
+    [SerializeField] public KeyCode exitWithoutSavingHotkey = KeyCode.Escape;
 
     [Range(0.01f, 0.5f)]
     public float magneticCornerDistance = 0.2f;
@@ -231,7 +232,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
         }
         
         //Using escape to exit interactable mode and load previous invariants
-        if (Input.GetKeyUp(KeyCode.Escape))
+        if (Input.GetKeyUp(exitWithoutSavingHotkey))
         {
             handles.SelectNone();
             _isFollowingMouse = false;
