@@ -1,8 +1,6 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.IO;
 using System;
-using UnityEngine.Rendering;
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
@@ -114,6 +112,45 @@ public class PerspectiveMappingCamera : MonoBehaviour
         if(!interactable)
             return;
 
+        //Check keyboard
+        if (Input.GetKeyUp(KeyCode.Alpha1) || Input.GetKeyUp(KeyCode.Keypad1))
+        {
+            if(handles.current == handles.targets[0])
+                handles.SelectNone();
+            else
+                handles.SelectHandle(1);
+        }
+        else if (Input.GetKeyUp(KeyCode.Alpha2) || Input.GetKeyUp(KeyCode.Keypad2))
+        {
+            if(handles.current == handles.targets[1])
+                handles.SelectNone();
+            else
+                handles.SelectHandle(2);
+        }
+        else if (Input.GetKeyUp(KeyCode.Alpha3) || Input.GetKeyUp(KeyCode.Keypad3))
+        {
+            if(handles.current == handles.targets[2])
+                handles.SelectNone();
+            else
+                handles.SelectHandle(3);
+        }
+        else if (Input.GetKeyUp(KeyCode.Alpha4) || Input.GetKeyUp(KeyCode.Keypad4))
+        {
+            if(handles.current == handles.targets[3])
+                handles.SelectNone();
+            else
+                handles.SelectHandle(4);
+        }
+        else if (Input.GetKeyUp(KeyCode.Alpha5) || Input.GetKeyUp(KeyCode.Keypad5))
+        {
+            if(handles.current == handles.center)
+                handles.SelectNone();
+            else
+                handles.SelectHandle(5);
+        }
+
+
+        //Check mouse
         handles.magneticDistance = this.magneticCornerDistance;
 
         Vector3 mainMousePos = Input.mousePosition;
