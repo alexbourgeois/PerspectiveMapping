@@ -62,7 +62,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
     [HideInInspector] public PerspectiveMappingDisplayConfig config;
 
-    void Awake() {
+    void OnEnable() {
         _cam = GetComponent<Camera>();
        
         if(_cam.targetDisplay < Display.displays.Length) {
