@@ -171,7 +171,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
     public void UpdateKeyboard()
     {
-                
+
         //Using number keys to select handles
         if (Input.GetKeyUp(KeyCode.Alpha1) || Input.GetKeyUp(KeyCode.Keypad1))
         {
@@ -227,11 +227,19 @@ public class PerspectiveMappingCamera : MonoBehaviour
                 if (currentIndex >= handles.all.Length)
                     currentIndex = 0;
             }
-            handles.SelectHandle(currentIndex + 1); 
+            handles.SelectHandle(currentIndex + 1);
         }
         
+        //Using escape to exit interactable mode and load previous invariants
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            handles.SelectNone();
+            _isFollowingMouse = false;
+            interactable = false;
+            LoadInvariants();
+        }
     }
-    
+
     void OnApplicationQuit() {
         SaveInvariants();
     }
