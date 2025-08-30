@@ -10,6 +10,9 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
     private Material material;
     private RenderTextureDescriptor perspectiveMappingTextureDescriptor;
 
+    private Vector2[] _cornerPointsCache = new Vector2[4];
+    private Vector2[] _sourcePointsCache = new Vector2[4];
+
     private static readonly int homographyMatrixVarId = Shader.PropertyToID("_HomographyMatrix");
     private static readonly int clearColorVarId = Shader.PropertyToID("_ClearColor");
     private static readonly int gridSizeVarId = Shader.PropertyToID("_GridSize");
@@ -31,6 +34,26 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
     RenderTextureFormat.Default, 0);
     }
 
+    private bool IsContentEqual(Vector2[] a, Vector2[] b) {
+        if (a.Length != b.Length)
+            return false;
+        for (int i = 0; i < a.Length; i++) {
+            if (a[i] != b[i])
+                return false;
+        }
+        return true;
+    }
+
+    private void DeepCopyInto(Vector2[] src, Vector2[] dst) {
+        if (src.Length != dst.Length) {
+            Debug.LogError("[PerspectiveMappingPass.cs] src and dst must have same length.");
+            return;
+        }
+        for (int i = 0; i < src.Length; i++) {
+            dst[i] = src[i];
+        }
+    }
+
     private void UpdatePerspectiveMappingSettings(PerspectiveMappingCamera perspCam)
     {
         if (material == null) return;
@@ -38,7 +61,15 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
         var _cornerPoints = PlatformSpecificCoordinates(perspCam.GetTargetListForShaderVector2());
         var _sourcePoints = PlatformSpecificCoordinates(perspCam.GetSourceListForShaderVector2());
 
-        FindHomography( _sourcePoints, _cornerPoints, ref perspCam.matrix );
+        if (!IsContentEqual(_sourcePoints, _sourcePointsCache) || !IsContentEqual(_cornerPoints, _cornerPointsCache)) {
+            Debug.Log("Homography!");
+            FindHomography( _sourcePoints, _cornerPoints, ref perspCam.matrix );
+            DeepCopyInto(_sourcePoints, _sourcePointsCache);
+            DeepCopyInto(_cornerPoints, _cornerPointsCache);
+        }
+        else {
+            Debug.Log("Pas Homography!");
+        }
 
         material.SetMatrix(homographyMatrixVarId, perspCam.matrix );
 
