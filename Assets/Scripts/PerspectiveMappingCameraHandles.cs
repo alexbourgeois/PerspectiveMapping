@@ -134,6 +134,28 @@ public class MappingHandles {
         }
     }
 
+    public Vector2 GetDiagonalNotIncluding(Target target) {
+        int n = this.targets.Length;
+        int i = Array.IndexOf(this.targets, target);
+        int prevTargetIndex = (i + n - 1) % n; // avoid modulo of negative number
+        int nextTargetIndex = (i + 1) % n;
+        Vector2[] targetPositions = GetTargetPositions();
+        return targetPositions[prevTargetIndex] - targetPositions[nextTargetIndex];
+    }
+
+    public Vector2[] GetOppositeSides(Target target) {
+        int n = this.targets.Length;
+        int i = Array.IndexOf(this.targets, target);
+        int prevTargetIndex = (i + n - 1) % n; // avoid modulo of negative number
+        int nextTargetIndex = (i + 1) % n;
+        int oppositeTargetIndex = (i + 2) % n;
+        Vector2[] targetPositions = GetTargetPositions();
+        Vector2[] oppositeSides = new Vector2[2];
+        oppositeSides[0] = targetPositions[prevTargetIndex] - targetPositions[oppositeTargetIndex];
+        oppositeSides[1] = targetPositions[nextTargetIndex] - targetPositions[oppositeTargetIndex];
+        return oppositeSides;
+    }
+
     public Handle GetClosestHandle(Vector2 mousePos) {
         float minDist = Mathf.Infinity;
         Handle closest = this.none;
@@ -151,9 +173,32 @@ public class MappingHandles {
         return closest;
     }
 
+    public bool isCrossingLine(Target target, Vector2 newTargetPosition, Vector2 lineDirection) {
+            Vector2 normal = MathTools.Normal(lineDirection);
+            Vector2 centerPos = center.GetPosition();
+            Vector2 centerToTarget = target.GetPosition() - centerPos;
+            Vector2 centerToCandidatePos = newTargetPosition - centerPos;
+
+            // colinear product between normal to line should not change sign
+            // otherwise the line is crossed.
+            return Mathf.Sign(Vector2.Dot(centerToTarget, normal)) != Mathf.Sign(Vector2.Dot(centerToCandidatePos, normal));
+    }
+
     public void SetPosition(Handle handle, Vector2 pos) {
         if (handle.type == HandleType.None)
             return;
+
+        if (handle.type == HandleType.Target) {
+            // Make sure targets do not cross diagonal
+            Vector2 diag = GetDiagonalNotIncluding(handle as Target);
+            if (isCrossingLine(handle as Target, pos, diag))
+                return;
+
+            // Make sure targets do not cross oposite sides
+            Vector2[] oppositeSides = GetOppositeSides(handle as Target);
+            if (isCrossingLine(handle as Target, pos, oppositeSides[0]) || isCrossingLine(handle as Target, pos, oppositeSides[1]))
+                return;
+        }
 
         handle.SetPosition(pos);
     }

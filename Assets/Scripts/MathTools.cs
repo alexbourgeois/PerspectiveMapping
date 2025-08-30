@@ -9,6 +9,13 @@ public class MathTools {
             return barycenter / points.Length;
         }
 
+        public static Vector2 Normal(Vector2 v) {
+            Vector2 normal = Vector2.zero;
+            normal.x = -v.y;
+            normal.y = v.x;
+            return normal;
+        }
+
         // Intersection of diagonals of a quadrilateral
         // assumes corners ordered along the perimeter, for example:
         // 0---1
