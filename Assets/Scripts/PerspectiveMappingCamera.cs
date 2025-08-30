@@ -61,8 +61,9 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
     private Camera _cam;
 
+    [HideInInspector] public PerspectiveMappingDisplayConfig config;
 
-    void OnEnable() {
+    void Awake() {
         _cam = GetComponent<Camera>();
        
         if(_cam.targetDisplay < Display.displays.Length) {
@@ -237,11 +238,20 @@ public class PerspectiveMappingCamera : MonoBehaviour
     }
 
     public void SaveInvariants() {
-        var config = new PerspectiveMappingDisplayConfig();
+        config = new PerspectiveMappingDisplayConfig();
         config.invariants = invariants;
         config.targets = targets;
         config.mappingInvariants = mappingInvariants;
         config.displayIndex = _cam.targetDisplay;
+
+        var ui = this.GetComponent<PerspectiveMappingUI>();
+        config.uiConfig = new PerspectiveMappingUIConfig();
+        if (ui != null) {
+            config.uiConfig.handleSize = ui.handleSize;
+            config.uiConfig.idleHandleColor = ui.idleHandleColor;
+            config.uiConfig.selectedHandleColor = ui.selectedHandleColor;
+        }
+
         var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", "display" + _cam.targetDisplay + "_config.json");
         if(!File.Exists(path)) {
             Debug.Log("[PerspectiveMapping] Creating config file : " + path);
@@ -253,15 +263,21 @@ public class PerspectiveMappingCamera : MonoBehaviour
         Debug.Log("[PerspectiveMapping] Saved config file : " + path);
     }
 
-    public void LoadInvariants() {
+    public void LoadInvariants()
+    {
         var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", "display" + _cam.targetDisplay + "_config.json");
-        if(File.Exists(path)) {
+        if (File.Exists(path))
+        {
             var data = File.ReadAllText(path);
-            var config = JsonUtility.FromJson<PerspectiveMappingDisplayConfig>(data);
+            config = JsonUtility.FromJson<PerspectiveMappingDisplayConfig>(data);
             invariants = config.invariants;
             targets = config.targets;
             mappingInvariants = config.mappingInvariants;
             Debug.Log("[PerspectiveMapping] Loaded config file : " + path);
+        }
+        else
+        {
+            Debug.Log("[PerspectiveMapping] No config file found for display " + _cam.targetDisplay + ".");
         }
     }
 
@@ -296,14 +312,24 @@ public class PerspectiveMappingCamera : MonoBehaviour
 }
 
 [Serializable]
-public class PerspectiveMappingDisplayConfig {
+public class PerspectiveMappingDisplayConfig
+{
     public int displayIndex;
     public MappingInvariants mappingInvariants;
     public Vector2[] invariants;
     public Vector2[] targets;
+    public PerspectiveMappingUIConfig uiConfig;
 }
 
-public enum MappingInvariants {
+[Serializable]
+public class PerspectiveMappingUIConfig
+{
+    public Color idleHandleColor = Color.darkCyan;
+    public Color selectedHandleColor = Color.darkOrange;
+    public float handleSize = 20f;
+}
+public enum MappingInvariants
+{
     Corners,
     Circle,
 }

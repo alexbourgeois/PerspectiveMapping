@@ -400,20 +400,20 @@ MonoBehaviour:
   squareSize: 10
   lineWidth: 0.02
   matrix:
-    e00: 0.51607555
-    e01: -0.028742595
+    e00: 0.8000235
+    e01: 0.03274166
     e02: 0
-    e03: 0.00561164
-    e10: -0.016638886
-    e11: 0.64344746
+    e03: -0.062296197
+    e10: 0.0010060753
+    e11: 0.6626262
     e12: 0
-    e13: 0.015968047
+    e13: -0.057741873
     e20: 0
     e21: 0
     e22: 0
     e23: 0
-    e30: 0.026252788
-    e31: -0.08667955
+    e30: -0.017932555
+    e31: -0.08882455
     e32: 0
     e33: 1
 --- !u!114 &509370681
@@ -532,7 +532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactable: 0
-  mappingInvariants: 0
+  mappingInvariants: 1
   mappingModeHotkey: 112
   resetMappingHotkey: 114
   showTestPatternHotkey: 111
@@ -543,20 +543,20 @@ MonoBehaviour:
   squareSize: 10
   lineWidth: 0.02
   matrix:
-    e00: 0.66248083
-    e01: -0.06616414
+    e00: 1
+    e01: 0
     e02: 0
-    e03: 0.04697775
-    e10: 0.0045102234
-    e11: 0.7966003
+    e03: 0
+    e10: 0
+    e11: 1
     e12: 0
-    e13: -0.08570326
+    e13: 0
     e20: 0
     e21: 0
     e22: 0
     e23: 0
-    e30: -0.036234837
-    e31: -0.18192606
+    e30: 0
+    e31: -0
     e32: 0
     e33: 1
 --- !u!114 &1496639108

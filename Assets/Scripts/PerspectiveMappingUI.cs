@@ -87,6 +87,13 @@ public class PerspectiveMappingUI : MonoBehaviour
 
     public void SetupCanvas()
     {
+        //Load configuration
+        if (_perspectiveMappingCamera.config.uiConfig != null)
+        {
+            handleSize = _perspectiveMappingCamera.config.uiConfig.handleSize;
+            idleHandleColor = _perspectiveMappingCamera.config.uiConfig.idleHandleColor;
+            selectedHandleColor = _perspectiveMappingCamera.config.uiConfig.selectedHandleColor;
+        }
 
         GameObject canvasGO = new GameObject("PerspectiveMapping_Canvas");
         var canvas = canvasGO.AddComponent<Canvas>();
