@@ -113,7 +113,7 @@ public class PerspectiveMappingUI : MonoBehaviour
             MappingHandles.Handle handle = _perspectiveMappingCamera.handles.all[i];
 
             GameObject handleObject = new GameObject("Handle_" + i);
-            handleObject.transform.SetParent(canvas.transform);
+            handleObject.transform.SetParent(canvas.transform, false);
 
             RectTransform rectTransform = handleObject.AddComponent<RectTransform>();
             rectTransform.sizeDelta = new Vector2(handleSize, handleSize); // Set size of the handle
