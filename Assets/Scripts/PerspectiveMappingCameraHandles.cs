@@ -28,11 +28,20 @@ public class MappingHandles {
 
     public Handle[] all = new Handle[5]; // Center and Target handles
 
-    public void SelectNone() {
+    public void SelectNone()
+    {
         this.current = this.none;
     }
 
-    public void SelectClosestHandle(Vector2 mousePos) {
+    public void SelectHandle(int index) {
+        if (index < 0 || index >= this.targets.Length)
+            throw new Exception("Handle index out of range");
+
+        this.current = this.targets[index];
+    }
+
+    public void SelectClosestHandle(Vector2 mousePos)
+    {
         this.current = GetClosestHandle(mousePos);
     }
 
