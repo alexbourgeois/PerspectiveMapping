@@ -158,7 +158,9 @@ public class PerspectiveMappingCamera : MonoBehaviour
             if (_isFollowingMouse) {
                 var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
                 mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
-                handles.SetPosition(handles.current, mousePos);
+                // constrain handle to screen
+                Vector3 clampedMousePos = MathTools.Clamp(mousePos, -1.0f, 1.0f);
+                handles.SetPosition(handles.current, clampedMousePos);
             }
             else {
                 // Translate.

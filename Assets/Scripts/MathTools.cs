@@ -9,6 +9,13 @@ public class MathTools {
             return barycenter / points.Length;
         }
 
+        public static Vector3 Clamp(Vector3 v, float min, float max) {
+            v.x = Mathf.Clamp(v.x, min, max);
+            v.y = Mathf.Clamp(v.y, min, max);
+            v.z = Mathf.Clamp(v.z, min, max);
+            return v;
+        }
+
         public static Vector2 Normal(Vector2 v) {
             Vector2 normal = Vector2.zero;
             normal.x = -v.y;
