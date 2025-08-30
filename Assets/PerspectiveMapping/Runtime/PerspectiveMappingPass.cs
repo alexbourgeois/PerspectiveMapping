@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class PerspectiveMappingRenderPass : ScriptableRenderPass
 {
-    private PerspectiveMappingSettings defaultSettings;
     private Material material;
     private RenderTextureDescriptor perspectiveMappingTextureDescriptor;
 
@@ -22,10 +21,9 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
     private const string k_MappedTextureName = "_MappedTexture";
     private const string k_PerspectiveMappingPassName = "PerspectiveMappingPass";
 
-    public PerspectiveMappingRenderPass(Material material, PerspectiveMappingSettings defaultSettings)
+    public PerspectiveMappingRenderPass(Material material)
     {
         this.material = material;
-        this.defaultSettings = defaultSettings;
 
         perspectiveMappingTextureDescriptor = new RenderTextureDescriptor(Screen.width, Screen.height,
     RenderTextureFormat.Default, 0);

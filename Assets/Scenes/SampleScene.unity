@@ -346,7 +346,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -370,7 +370,7 @@ Transform:
   m_GameObject: {fileID: 509370675}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.186, y: 1, z: -5.87}
+  m_LocalPosition: {x: 0.114, y: 1, z: -5.87}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -393,29 +393,47 @@ MonoBehaviour:
   mappingModeHotkey: 112
   resetMappingHotkey: 114
   showTestPatternHotkey: 111
+  exitWithoutSavingHotkey: 27
   magneticCornerDistance: 0.2
-  clearColor: {r: 0.509434, g: 0.22347811, b: 0.22347811, a: 1}
+  clearColor: {r: 0, g: 0, b: 0, a: 1}
   showTestPatternTexture: 0
   testPatternTexture: {fileID: 0}
   squareSize: 10
   lineWidth: 0.02
   matrix:
-    e00: 0.8000235
-    e01: 0.03274166
+    e00: 0.2963087
+    e01: -0.029018797
     e02: 0
-    e03: -0.062296197
-    e10: 0.0010060753
-    e11: 0.6626262
+    e03: 0.35472417
+    e10: 0.19482702
+    e11: 0.6140211
     e12: 0
-    e13: -0.057741873
+    e13: -0.19969587
     e20: 0
     e21: 0
     e22: 0
     e23: 0
-    e30: -0.017932555
-    e31: -0.08882455
+    e30: -0.23279667
+    e31: -0.3011687
     e32: 0
     e33: 1
+  config:
+    displayIndex: 1
+    mappingInvariants: 0
+    invariants:
+    - {x: -1, y: 1}
+    - {x: -1, y: -1}
+    - {x: 1, y: -1}
+    - {x: 1, y: 1}
+    targets:
+    - {x: 0.05699885, y: 0.6574751}
+    - {x: 0.031554088, y: -0.23560718}
+    - {x: 1.334695, y: -1.3070967}
+    - {x: 0.63653076, y: 0.57928324}
+    uiConfig:
+      idleHandleColor: {r: 0, g: 0.5450981, b: 0.5450981, a: 1}
+      selectedHandleColor: {r: 1, g: 0.5490196, b: 0, a: 1}
+      handleSize: 20
 --- !u!114 &509370681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -536,29 +554,47 @@ MonoBehaviour:
   mappingModeHotkey: 112
   resetMappingHotkey: 114
   showTestPatternHotkey: 111
+  exitWithoutSavingHotkey: 27
   magneticCornerDistance: 0.2
-  clearColor: {r: 0.48967603, g: 0.7924528, b: 0.7302334, a: 1}
+  clearColor: {r: 0, g: 0, b: 0, a: 1}
   showTestPatternTexture: 0
   testPatternTexture: {fileID: 0}
   squareSize: 10
   lineWidth: 0.02
   matrix:
-    e00: 1
-    e01: 0
+    e00: 0.82990503
+    e01: 0.00075390557
     e02: 0
-    e03: 0
-    e10: 0
-    e11: 1
+    e03: -0.008321404
+    e10: 0.06803264
+    e11: 0.9725364
     e12: 0
-    e13: 0
+    e13: 0.21253645
     e20: 0
     e21: 0
     e22: 0
     e23: 0
-    e30: 0
-    e31: -0
+    e30: -0.3069814
+    e31: -0.09059836
     e32: 0
     e33: 1
+  config:
+    displayIndex: 0
+    mappingInvariants: 1
+    invariants:
+    - {x: 0, y: 1}
+    - {x: -0.5624103, y: 0}
+    - {x: 0, y: -1}
+    - {x: 0.5624103, y: 0}
+    targets:
+    - {x: -0.008321404, y: 0.6968651}
+    - {x: -0.40512407, y: -0.14861576}
+    - {x: -0.008321404, y: -1.3031347}
+    - {x: 0.5540889, y: -0.30313474}
+    uiConfig:
+      idleHandleColor: {r: 0, g: 0.5450981, b: 0.5450981, a: 1}
+      selectedHandleColor: {r: 1, g: 0.5490196, b: 0, a: 1}
+      handleSize: 20
 --- !u!114 &1496639108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -639,7 +675,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -663,7 +699,7 @@ Transform:
   m_GameObject: {fileID: 1496639105}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.186, y: 1, z: -5.87}
+  m_LocalPosition: {x: 0.777, y: 1, z: -5.87}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -1,0 +1,19 @@
+{
+  "name": "com.alexbourgeois.perspectivemapping",
+  "displayName": "Perspective Mapping",
+  "version": "1.0.6",
+  "description": "Tool allowing perspective deformation on a Unity Camera output",
+  "unity": "6000.2",
+  "keywords": [
+    "unity",
+    "tool",
+    "mapping",
+    "deforamtion",
+    "videoprojection"
+  ],
+  "author": "Gahel et Alex Bourgeois",
+  "dependencies": {
+    "com.unity.render-pipelines.core": "14.1.0",
+    "com.unity.render-pipelines.universal": "14.1.0"
+  }
+}
