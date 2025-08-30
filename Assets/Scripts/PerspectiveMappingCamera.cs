@@ -135,31 +135,34 @@ public class PerspectiveMappingCamera : MonoBehaviour
             }
         #endif
 
-        if(Input.GetMouseButtonDown(0)) {
+        // listen for mouse to change state
+        bool mouseButtonJustPressed = !_isFollowingMouse && Input.GetMouseButtonDown(0);
+        bool mouseButtonJustReleased = _isFollowingMouse && Input.GetMouseButtonUp(0);
+
+        if (mouseButtonJustPressed) {
             _isFollowingMouse = true;
             var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
             mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
             handles.SelectClosestHandle(mousePos);
         }
 
-        if( handles.current.type != HandleType.None) {
-            if( _isFollowingMouse) {
+        if (mouseButtonJustReleased) {
+            _isFollowingMouse = false;
+        }
+
+        if (handles.current.type != HandleType.None) {
+            if (_isFollowingMouse) {
                 var mousePos = _cam.ScreenToViewportPoint(Input.mousePosition - _multiDisplayOffset);
                 mousePos = remap(mousePos, 0f, 1f, -1f, 1f);
-                handles.SelectClosestHandle(mousePos);
                 handles.current.SetPosition(mousePos);
             }
             else {
                 // Translate.
                 Vector2 delta = new Vector2( Input.GetAxisRaw( "Horizontal" ), Input.GetAxisRaw( "Vertical" ) * _cam.aspect ) * 0.1f;
-                if( Input.GetKey( KeyCode.LeftShift ) || Input.GetKey( KeyCode.RightShift ) ) delta *= 10;
-                else if(  Input.GetKey( KeyCode.LeftControl ) || Input.GetKey( KeyCode.RightControl ) ) delta *= 0.2f;
+                if (Input.GetKey( KeyCode.LeftShift ) || Input.GetKey( KeyCode.RightShift ) ) delta *= 10;
+                else if (Input.GetKey( KeyCode.LeftControl ) || Input.GetKey( KeyCode.RightControl ) ) delta *= 0.2f;
                 handles.current.SetPosition(handles.current.GetPosition() + delta * Time.deltaTime);
             }
-        }
-
-        if(Input.GetMouseButtonUp(0)) {
-             _isFollowingMouse = false;
         }
     }
 
