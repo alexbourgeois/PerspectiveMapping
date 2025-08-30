@@ -113,42 +113,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
             return;
 
         //Check keyboard
-        if (Input.GetKeyUp(KeyCode.Alpha1) || Input.GetKeyUp(KeyCode.Keypad1))
-        {
-            if(handles.current == handles.targets[0])
-                handles.SelectNone();
-            else
-                handles.SelectHandle(1);
-        }
-        else if (Input.GetKeyUp(KeyCode.Alpha2) || Input.GetKeyUp(KeyCode.Keypad2))
-        {
-            if(handles.current == handles.targets[1])
-                handles.SelectNone();
-            else
-                handles.SelectHandle(2);
-        }
-        else if (Input.GetKeyUp(KeyCode.Alpha3) || Input.GetKeyUp(KeyCode.Keypad3))
-        {
-            if(handles.current == handles.targets[2])
-                handles.SelectNone();
-            else
-                handles.SelectHandle(3);
-        }
-        else if (Input.GetKeyUp(KeyCode.Alpha4) || Input.GetKeyUp(KeyCode.Keypad4))
-        {
-            if(handles.current == handles.targets[3])
-                handles.SelectNone();
-            else
-                handles.SelectHandle(4);
-        }
-        else if (Input.GetKeyUp(KeyCode.Alpha5) || Input.GetKeyUp(KeyCode.Keypad5))
-        {
-            if(handles.current == handles.center)
-                handles.SelectNone();
-            else
-                handles.SelectHandle(5);
-        }
-
+        UpdateKeyboard();
 
         //Check mouse
         handles.magneticDistance = this.magneticCornerDistance;
@@ -204,6 +169,69 @@ public class PerspectiveMappingCamera : MonoBehaviour
         }
     }
 
+    public void UpdateKeyboard()
+    {
+                
+        //Using number keys to select handles
+        if (Input.GetKeyUp(KeyCode.Alpha1) || Input.GetKeyUp(KeyCode.Keypad1))
+        {
+            if (handles.current == handles.targets[0])
+                handles.SelectNone();
+            else
+                handles.SelectHandle(1);
+        }
+        else if (Input.GetKeyUp(KeyCode.Alpha2) || Input.GetKeyUp(KeyCode.Keypad2))
+        {
+            if (handles.current == handles.targets[1])
+                handles.SelectNone();
+            else
+                handles.SelectHandle(2);
+        }
+        else if (Input.GetKeyUp(KeyCode.Alpha3) || Input.GetKeyUp(KeyCode.Keypad3))
+        {
+            if (handles.current == handles.targets[2])
+                handles.SelectNone();
+            else
+                handles.SelectHandle(3);
+        }
+        else if (Input.GetKeyUp(KeyCode.Alpha4) || Input.GetKeyUp(KeyCode.Keypad4))
+        {
+            if (handles.current == handles.targets[3])
+                handles.SelectNone();
+            else
+                handles.SelectHandle(4);
+        }
+        else if (Input.GetKeyUp(KeyCode.Alpha5) || Input.GetKeyUp(KeyCode.Keypad5))
+        {
+            if (handles.current == handles.center)
+                handles.SelectNone();
+            else
+                handles.SelectHandle(5);
+        }
+
+        //Using tab to cycle through handles and shift tab to go backwards
+        if (Input.GetKeyUp(KeyCode.Tab))
+        {
+            int currentIndex = Array.IndexOf(handles.all, handles.current);
+            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+            {
+                // Shift + Tab to go backwards
+                currentIndex--;
+                if (currentIndex < 0)
+                    currentIndex = handles.all.Length - 1;
+            }
+            else
+            {
+                // Tab to go forwards
+                currentIndex++;
+                if (currentIndex >= handles.all.Length)
+                    currentIndex = 0;
+            }
+            handles.SelectHandle(currentIndex + 1); 
+        }
+        
+    }
+    
     void OnApplicationQuit() {
         SaveInvariants();
     }
