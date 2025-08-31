@@ -12,8 +12,10 @@ public class PerspectiveMappingFeature : ScriptableRendererFeature
 
     public override void Create()
     {
+        shader = Shader.Find("PerspectiveMapping/PerspectiveMappingShader");
         if (shader == null)
         {
+            Debug.LogError("[PerspectiveMappingFeature] Shader not found !");
             return;
         }
         material = new Material(shader);
