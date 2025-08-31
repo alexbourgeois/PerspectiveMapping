@@ -47,10 +47,18 @@ Shader "CustomEffects/PerspectiveMappingShader"
         {
             // N = _GridSize : en grid space, la taille d'une cellule vaut 1.
             float N = _GridSize;
+        
+            // --- CADRE GLOBAL ---
+            // Distance aux bords de l'UV (0 à 1)
+            float2 distToBorder = min(uv, 1.0 - uv);
+            float borderDistance = min(distToBorder.x, distToBorder.y);
+            float border = 1.0 - step(_LineWidth / (N), borderDistance);
+        
+            // --- GRILLE CENTRÉE ---
+            // Centrage : on décale pour que le centre (0.5, 0.5) soit à une intersection
+            // On soustrait 0.5 pour centrer, puis on ajoute 0.5 en grid space
+            float2 gridCoord = (uv - 0.5) * float2( N * _AspectRatio, N );
             
-            // --- GRILLE ---
-            // Passage en grid space en tenant compte de l'aspect :
-            float2 gridCoord = uv * float2( N * _AspectRatio, N );
             // On récupère la position dans la cellule (valeurs entre 0 et 1)
             float2 f = frac( gridCoord );
             // d = distance minimale à un bord (soit vers 0 ou 1)
@@ -62,38 +70,38 @@ Shader "CustomEffects/PerspectiveMappingShader"
             // Si l'une des deux directions présente un trait (valeur 1), on considère que la cellule est sur une ligne.
             // On définit alors grid = 0 dans la zone de trait, et grid = 1 en fond.
             float grid = 1.0 - max( lineX, lineY );
-            
+        
             // --- CROIX ---
             // Première diagonale (de bas à gauche vers haut à droite) :
             // La distance perpendiculaire à la droite passant par le centre est :
             float d1 = abs(uv.y - uv.x ) / 1.4142135624;
             // On dessine la ligne si d1 < _LineWidth/2
             float l1 = step( _LineWidth / 20.0, d1 );  // l1 = 0 sur le trait, 1 en fond.
-            
+        
             // Seconde diagonale (de haut à gauche vers bas à droite) :
             float d2 = abs( ( uv.x + uv.y - 1.0 ) ) / 1.4142135624;
             float l2 = step( _LineWidth / 20.0, d2 );
-            
+        
             // La croix sera présente (valeur 0) si l'une des deux diagonales est en mode "trait"
             float cross = l1 * l2;
-            
+        
             // --- CERCLE ---
-            float2 pos = uv * float2( N * _AspectRatio, N );
+            // Utilisation des coordonnées centrées pour le cercle aussi
+            float2 pos = (uv - 0.5) * float2( N * _AspectRatio, N );
             float2 dim = float2( N * _AspectRatio, N );
             float minSize = min( dim.x , dim.y );
-
-            // La distance au centre (ici, on calcule à partir d'une position centrée)
-            float2 fromCenter = dim - pos * 2.0;
-            float radius = length( fromCenter );
-
+            // La distance au centre (maintenant vraiment centrée)
+            float radius = length( pos );
             float circleThreshold = _LineWidth / (0.125 * N);
-            float circle = step( circleThreshold, abs(radius - minSize) );
-            
+            float circle = step( circleThreshold, abs(radius - minSize * 0.5) );
+        
             // --- COMBINAISON ---
             // Pour chaque élément, 0 signifie "trait" et 1 "fond".
             // Le produit grid * cross * circle vaut 1 uniquement en fond (aucun trait).
-            // On retourne alors 1 - produit, ce qui donne 1 (blanc) sur les traits et 0 (noir) en fond.
-            return 1.0 - saturate( grid * cross * circle );
+            float result = 1.0 - saturate( grid * cross * circle );
+            
+            // Le cadre a priorité sur tout le reste : si border = 1, on force le blanc
+            return max(result, border);
         }
         
         float4 ClearBackground(Varyings input) : SV_Target  {
