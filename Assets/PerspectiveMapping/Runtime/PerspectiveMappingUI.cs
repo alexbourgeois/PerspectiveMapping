@@ -18,12 +18,6 @@ public class PerspectiveMappingUI : MonoBehaviour
     private List<Image> _handlesImgs = new List<Image>();
     private List<RectTransform> _handlesRts = new List<RectTransform>();
 
-
-    public bool forceSetupUI;
-    public bool forceCleanUpUI;
-
-
-
     void Start()
     {
         _perspectiveMappingCamera = GetComponent<PerspectiveMappingCamera>();
@@ -33,17 +27,6 @@ public class PerspectiveMappingUI : MonoBehaviour
     void Update()
     {
         UpdateHandles();
-
-        if (forceSetupUI)
-        {
-            forceSetupUI = false;
-            SetupCanvas();
-        }
-        if (forceCleanUpUI)
-        {
-            forceCleanUpUI = false;
-            CleanUpUI();
-        }
     }
 
     public void UpdateHandles()
