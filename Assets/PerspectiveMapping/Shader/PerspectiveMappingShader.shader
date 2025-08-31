@@ -1,4 +1,4 @@
-Shader "CustomEffects/PerspectiveMappingShader"
+Shader "PerspectiveMapping/PerspectiveMappingShader"
 {
     HLSLINCLUDE
 
@@ -140,7 +140,7 @@ Shader "CustomEffects/PerspectiveMappingShader"
             if(uvTransformed.x<0 || uvTransformed.y<0 || uvTransformed.x>1 || uvTransformed.y>1)
                 color.rgb =_ClearColor;
 
-            //TODO fix ANTIALIASING 
+            //ANTIALIASING on texture border
             float2 pos = uvTransformed + 0.5;
 			float2 f  = abs( frac( pos ) - 0.5 );
 			float2 df = fwidth( pos ) * 0.7;
