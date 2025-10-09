@@ -10,7 +10,7 @@ Key features include:
 * Independent control of each corner and the output center
 * Mouse and keyboard interaction for flexible adjustments
 * Automatic configuration saving to JSON files
-* Full compatibility with **Unity URP** (version 14.0 or higher) via a **Renderer Feature**
+* Full compatibility with **Unity URP** (version 14.1 or higher) via a **Renderer Feature**
 * Support both Legacy Input system and New Input System
 * Support for multiple cameras, each with its own configuration stored in: **StreamingAssets/PerspectiveMapping/**
 
