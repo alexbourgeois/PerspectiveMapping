@@ -17,6 +17,8 @@ public class PerspectiveMappingUI : MonoBehaviour
     private RectTransform _canvasRt;
     private List<Image> _handlesImgs = new List<Image>();
     private List<RectTransform> _handlesRts = new List<RectTransform>();
+    private Canvas _canvas;
+    private Camera _camera;
 
     void Start()
     {
@@ -43,6 +45,9 @@ public class PerspectiveMappingUI : MonoBehaviour
         {
             _canvasRt.gameObject.SetActive(true);
         }
+
+        if (_canvas.targetDisplay != _camera.targetDisplay)
+            _canvas.targetDisplay = _camera.targetDisplay;
 
         // Update the handles based on the current perspective mapping camera settings
         for (int i = 0; i < _handlesRts.Count; i++)
@@ -79,15 +84,16 @@ public class PerspectiveMappingUI : MonoBehaviour
         }
 
         GameObject canvasGO = new GameObject("PerspectiveMapping_Canvas");
-        var canvas = canvasGO.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.targetDisplay = this.GetComponent<Camera>().targetDisplay;
-        canvas.transform.SetParent(this.transform, false);
-        canvas.sortingOrder = 1000; // Set a high sorting order to ensure it appears above other UI elements
+        _canvas = canvasGO.AddComponent<Canvas>();
+        _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        _camera = this.GetComponent<Camera>();
+        _canvas.targetDisplay = _camera.targetDisplay;
+        _canvas.transform.SetParent(this.transform, false);
+        _canvas.sortingOrder = 1000; // Set a high sorting order to ensure it appears above other UI elements
 
-        Debug.Log("[PerspectiveMappingUI] Setting up PerspectiveMapping UI on display " + canvas.targetDisplay);
+        Debug.Log("[PerspectiveMappingUI] Setting up PerspectiveMapping UI on display " + _canvas.targetDisplay);
 
-        _canvasRt = canvas.GetComponent<RectTransform>();
+        _canvasRt = _canvas.GetComponent<RectTransform>();
         _canvasRt.anchoredPosition3D = Vector3.zero;
 
         //Add an Image for each Handle
@@ -96,7 +102,7 @@ public class PerspectiveMappingUI : MonoBehaviour
             MappingHandles.Handle handle = _perspectiveMappingCamera.handles.all[i];
 
             GameObject handleObject = new GameObject("Handle_" + i);
-            handleObject.transform.SetParent(canvas.transform, false);
+            handleObject.transform.SetParent(_canvas.transform, false);
 
             RectTransform rectTransform = handleObject.AddComponent<RectTransform>();
             rectTransform.sizeDelta = new Vector2(handleSize, handleSize); // Set size of the handle

@@ -84,10 +84,18 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
         UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
 
         TextureHandle srcCamColor = resourceData.activeColorTexture;
-        TextureHandle dst = UniversalRenderer.CreateRenderGraphTexture(renderGraph, perspectiveMappingTextureDescriptor, k_MappedTextureName, true);
-
         UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
-
+        
+        var desc = cameraData.cameraTargetDescriptor;
+        desc.depthBufferBits = 0;
+        desc.msaaSamples = 1; 
+        desc.graphicsFormat = cameraData.cameraTargetDescriptor.graphicsFormat;
+        TextureHandle dst = UniversalRenderer.CreateRenderGraphTexture(
+            renderGraph,
+            desc,
+            k_MappedTextureName,
+            true);
+            
         // The following line ensures that the render pass doesn't blit
         // from the back buffer.
         if (resourceData.isActiveTargetBackBuffer)

@@ -399,35 +399,34 @@ MonoBehaviour:
   squareSize: 10
   lineWidth: 0.02
   matrix:
-    e00: 0.7440986
-    e01: -0.013087078
+    e00: 1.0156939
+    e01: 0.030497307
     e02: 0
-    e03: -0.014426836
-    e10: -0.014114291
-    e11: 0.8062348
+    e03: 0.06599708
+    e10: -0.07570212
+    e11: 0.9396874
     e12: 0
-    e13: -0.24049196
+    e13: -0.042342685
     e20: 0
     e21: 0
     e22: 0
     e23: 0
-    e30: -0.0725444
-    e31: -0.17987213
+    e30: -0.24442649
+    e31: -0.099344276
     e32: 0
     e33: 1
   config:
-    displayIndex: 1
     mappingInvariants: 1
     invariants:
-    - {x: 0, y: 0.97794545}
-    - {x: -1, y: 0}
-    - {x: 0, y: -0.97794545}
-    - {x: 1, y: 0}
+    - {x: 0, y: 1}
+    - {x: -0.5047852, y: 0}
+    - {x: 0, y: -1}
+    - {x: 0.5047852, y: 0}
     targets:
-    - {x: -0.0013847947, y: 0.8750243}
-    - {x: -0.70722055, y: 0.21106601}
-    - {x: -0.03303659, y: -0.66492546}
-    - {x: 0.7867458, y: 0.27452123}
+    - {x: 0.03229177, y: 0.89328706}
+    - {x: -0.39764726, y: 0.0036758375}
+    - {x: 0.10713793, y: -0.9963237}
+    - {x: 0.66015625, y: 0.09189415}
     uiConfig:
       idleHandleColor: {r: 0, g: 0.5450981, b: 0.5450981, a: 1}
       selectedHandleColor: {r: 1, g: 0.5490196, b: 0, a: 1}
@@ -475,41 +474,6 @@ MonoBehaviour:
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: PerspectiveMapping
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
---- !u!1 &1496639105 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9141648927493774999, guid: d63399157595e4e4db3ded280490de53, type: 3}
-  m_PrefabInstance: {fileID: 921699658614957339}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1496639111
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1496639105}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
-  m_Actions: {fileID: -944628639613478452, guid: cb905eafd3fc2734baff1c28c6e00bf3, type: 3}
-  m_NotificationBehavior: 0
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: 
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!1 &1827338965
@@ -671,6 +635,90 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: matrix.e00
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: matrix.e01
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: matrix.e03
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: matrix.e10
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: matrix.e11
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: matrix.e13
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: matrix.e30
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: matrix.e31
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.mappingInvariants
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.targets.Array.data[0].x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.targets.Array.data[1].x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.targets.Array.data[1].y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.targets.Array.data[2].x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.targets.Array.data[3].x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.targets.Array.data[3].y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.invariants.Array.data[0].x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.invariants.Array.data[1].x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.invariants.Array.data[1].y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.invariants.Array.data[2].x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.invariants.Array.data[3].x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3378072099187340617, guid: d63399157595e4e4db3ded280490de53, type: 3}
+      propertyPath: config.invariants.Array.data[3].y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9141648927493774999, guid: d63399157595e4e4db3ded280490de53, type: 3}
       propertyPath: m_Name
       value: PerspectiveCamera
@@ -678,10 +726,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 9141648927493774999, guid: d63399157595e4e4db3ded280490de53, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1496639111}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d63399157595e4e4db3ded280490de53, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
