@@ -20,6 +20,7 @@ Shader "PerspectiveMapping/PerspectiveMappingShader"
         float _GridSize;
         float _AspectRatio;
         float _LineWidth;
+	float _circleRadius; // percentage of the max possible radius to touch screen border
         
         float _TestPatternTexCoeff;
         TEXTURE2D(_TestPatternTex);
@@ -92,8 +93,8 @@ Shader "PerspectiveMapping/PerspectiveMappingShader"
             float minSize = min( dim.x , dim.y );
             // La distance au centre (maintenant vraiment centrée)
             float radius = length( pos );
-            float circleThreshold = _LineWidth / (0.125 * N);
-            float circle = step( circleThreshold, abs(radius - minSize * 0.5) );
+            float circleThreshold = _LineWidth / (0.125 * N * _circleRadius);
+            float circle = step( circleThreshold, abs(radius / _circleRadius  - minSize * 0.5) );
         
             // --- COMBINAISON ---
             // Pour chaque élément, 0 signifie "trait" et 1 "fond".

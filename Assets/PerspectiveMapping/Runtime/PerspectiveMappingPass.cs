@@ -17,6 +17,7 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
     private static readonly int testPatternTexVarId = Shader.PropertyToID("_TestPatternTex");
     private static readonly int aspectRatioVarId = Shader.PropertyToID("_AspectRatio");
     private static readonly int lineWidthVarId = Shader.PropertyToID("_LineWidth");
+    private static readonly int circleRadiusVarId = Shader.PropertyToID("_circleRadius");
 
     private const string k_MappedTextureName = "_MappedTexture";
     private const string k_PerspectiveMappingPassName = "PerspectiveMappingPass";
@@ -47,6 +48,7 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
             material.SetFloat(showGridVarId, 1f);
             material.SetFloat(aspectRatioVarId, perspCam.GetASpectRatio());
             material.SetFloat(lineWidthVarId, perspCam.lineWidth);
+            material.SetFloat(circleRadiusVarId, perspCam.circleRadius);
 		}
         else {
             material.SetFloat(showGridVarId, 0f);

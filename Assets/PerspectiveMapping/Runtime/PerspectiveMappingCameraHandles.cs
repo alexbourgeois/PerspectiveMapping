@@ -4,6 +4,7 @@ using System;
 public class MappingHandles {
     private Vector2[] _sources = new Vector2[4];
 
+    // FIXME: remove setter side effect and use initialization function instead when resetting targets is necessary
     public Vector2[] sources {
         get { return _sources; }
         set {
@@ -201,6 +202,12 @@ public class MappingHandles {
         }
 
         handle.SetPosition(pos);
+    }
+
+    // Update sources without side effect of resetting targets
+    // TODO: this shouldd be default behavior, and sources setter should be removed
+    public void UpdateSources(Vector2[] new_sources) {
+        _sources = new_sources;
     }
 }
 

@@ -57,6 +57,10 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
     public float squareSize = 10.0f;
 
+    [Range(0.00f, 2f)]
+    public float circleRadius = 1.00f;
+    private float _prevCircleRadius = 1.00f;
+
     [Range(0.00f, 0.1f)]
     public float lineWidth = 0.02f;
     
@@ -247,6 +251,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
         //Check mouse
         UpdateMouse();
+        UpdateCircleRadius();
     }
 
     public void UpdateMouse()
@@ -397,8 +402,53 @@ public class PerspectiveMappingCamera : MonoBehaviour
     }
 #endif 
 
+    public void UpdateCircleRadius() {
+        if (_prevCircleRadius == circleRadius)
+            return;
+
+        if (mappingInvariants == MappingInvariants.Circle) {
+            // scale position of targets to scale the distance from center 
+            // handle to target to match the scaling of circle radius
+            for (int i = 0; i < targets.Length; i++) {
+                Vector2 centerToTarget = targets[i] - handles.center.GetPosition();
+                Vector2 scaledPos = circleRadius / _prevCircleRadius * centerToTarget + handles.center.GetPosition();
+                handles.targets[i].SetPosition(scaledPos);
+            }
+
+            // scale invariants without resetting targets
+            handles.UpdateSources(GetCircleMappingInvariants(circleRadius));
+        }
+
+        _prevCircleRadius = circleRadius;
+    }
+
     void OnApplicationQuit() {
         SaveInvariants();
+    }
+
+    private Vector2[] GetCircleMappingInvariants(float radius) {
+        Vector2[] res = new Vector2[4];
+        float a = 1; // horizontal radius
+        float b = 1; // vertical radius;
+
+        // FIXME: handles are wrong when aspect ratio changes
+        // -> reset invariants when aspect ratio changes ?
+        float aspect = GetASpectRatio(); // width/height
+        if (aspect > 1) {
+            a = circleRadius * 1 / aspect;
+            b = circleRadius;
+        }
+        else if (aspect < 1) {
+            a = circleRadius;
+            b = circleRadius * aspect;
+        }
+
+        //OpenGL coordinates
+        res[1] = new Vector2(-a, 0); // left of ellipse
+        res[0] = new Vector2(0, b); // top of ellipse
+        res[3] = new Vector2(a, 0); // right of ellipse
+        res[2] = new Vector2(0, -b); // bottom of ellipse
+        return res;
     }
 
     // TODO?: keep transformation when switching invariants
@@ -410,22 +460,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
         switch (mappingInvariants)
         {
             case MappingInvariants.Circle:
-                float a = 1; // horizontal radius
-                float b = 1; // vertical radius;
-
-                // FIXME: handles are wrong when aspect ratio changes
-                // -> reset invariants when aspect ratio changes ?
-                float aspect = GetASpectRatio(); // width/height
-                if (aspect > 1)
-                    a = 1 / aspect;
-                else if (aspect < 1)
-                    b = aspect;
-
-                //OpenGL coordinates
-                sources[1] = new Vector2(-a, 0); // left of ellipse
-                sources[0] = new Vector2(0, b); // top of ellipse
-                sources[3] = new Vector2(a, 0); // right of ellipse
-                sources[2] = new Vector2(0, -b); // bottom of ellipse
+                sources = GetCircleMappingInvariants(circleRadius);
                 break;
 
             default: // MappingInvariants.Corners
