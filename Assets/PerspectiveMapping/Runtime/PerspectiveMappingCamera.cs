@@ -473,7 +473,6 @@ public class PerspectiveMappingCamera : MonoBehaviour
         config.invariants = invariants;
         config.targets = targets;
         config.mappingInvariants = mappingInvariants;
-        config.displayIndex = _cam.targetDisplay;
 
         var ui = this.GetComponent<PerspectiveMappingUI>();
         config.uiConfig = new PerspectiveMappingUIConfig();
@@ -483,7 +482,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
             config.uiConfig.selectedHandleColor = ui.selectedHandleColor;
         }
 
-        var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", "display" + _cam.targetDisplay + "_config.json");
+        var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", this.gameObject.name + "_" + this.gameObject.GetInstanceID() + "_config.json");
         if(!File.Exists(path)) {
             Debug.Log("[PerspectiveMapping] Creating config file : " + path);
             Directory.CreateDirectory(Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping"));
@@ -496,7 +495,9 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
     public void LoadInvariants()
     {
-        var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", "display" + _cam.targetDisplay + "_config.json");
+        var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", this.gameObject.name + "_" + this.gameObject.GetInstanceID() + "_config.json");
+        Debug.Log("[PerspectiveMapping] Loading config file for camera "+ this.gameObject.name + ", instanceID : " + this.gameObject.GetInstanceID());
+
         if (File.Exists(path))
         {
             var data = File.ReadAllText(path);
@@ -508,7 +509,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
         }
         else
         {
-            Debug.Log("[PerspectiveMapping] No config file found for display " + _cam.targetDisplay + ".");
+            Debug.Log("[PerspectiveMapping] No config file found for camera " + this.gameObject.name + "_" + this.gameObject.GetInstanceID() + ".");
         }
     }
 
@@ -545,7 +546,6 @@ public class PerspectiveMappingCamera : MonoBehaviour
 [Serializable]
 public class PerspectiveMappingDisplayConfig
 {
-    public int displayIndex;
     public MappingInvariants mappingInvariants;
     public Vector2[] invariants;
     public Vector2[] targets;
