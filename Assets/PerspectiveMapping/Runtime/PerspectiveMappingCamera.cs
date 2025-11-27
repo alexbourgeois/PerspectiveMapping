@@ -57,7 +57,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
     public float squareSize = 10.0f;
 
-    [Range(0.00f, 2f)]
+    [Range(0.01f, 2f)] //to avoid division by zero
     public float circleRadius = 1.00f;
     private float _prevCircleRadius = 1.00f;
 

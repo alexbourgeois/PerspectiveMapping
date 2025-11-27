@@ -1,7 +1,7 @@
 {
   "name": "com.alexbourgeois.perspectivemapping",
   "displayName": "Perspective Mapping",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Tool allowing perspective deformation on a Unity camera output",
   "unity": "6000.0",
   "keywords": [
