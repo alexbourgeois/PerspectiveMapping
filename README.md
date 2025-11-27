@@ -14,6 +14,7 @@ Key features include:
 * Support both Legacy Input system and New Input System
 * Support for multiple cameras, each with its own configuration stored in: **StreamingAssets/PerspectiveMapping/**
 
+Warning : in Editor, mouse interaction won't work correctly
 ---
 
 ## 🕹️ Controls
