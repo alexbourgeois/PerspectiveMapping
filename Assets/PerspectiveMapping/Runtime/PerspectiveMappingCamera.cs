@@ -517,7 +517,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
             config.uiConfig.selectedHandleColor = ui.selectedHandleColor;
         }
 
-        var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", this.gameObject.name + "_" + this.gameObject.GetInstanceID() + "_config.json");
+        var path = GetConfigPath();
         if(!File.Exists(path)) {
             Debug.Log("[PerspectiveMapping] Creating config file : " + path);
             Directory.CreateDirectory(Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping"));
@@ -528,9 +528,19 @@ public class PerspectiveMappingCamera : MonoBehaviour
         Debug.Log("[PerspectiveMapping] Saved config file : " + path);
     }
 
+    // The object id may contain characters that are invalid in a file name
+    // (on Unity 6.3+, GetEntityId() is written "28331:256"), as may the GameObject name.
+    string GetConfigPath()
+    {
+        var fileName = this.gameObject.name + "_" + this.gameObject.GetInstanceID() + "_config.json";
+        foreach (char c in Path.GetInvalidFileNameChars())
+            fileName = fileName.Replace(c, '_');
+        return Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", fileName);
+    }
+
     public void LoadInvariants()
     {
-        var path = Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", this.gameObject.name + "_" + this.gameObject.GetInstanceID() + "_config.json");
+        var path = GetConfigPath();
         Debug.Log("[PerspectiveMapping] Loading config file for camera "+ this.gameObject.name + ", instanceID : " + this.gameObject.GetInstanceID());
 
         if (File.Exists(path))

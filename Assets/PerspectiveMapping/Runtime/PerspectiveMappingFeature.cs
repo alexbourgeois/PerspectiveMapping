@@ -7,6 +7,12 @@ using System;
 public class PerspectiveMappingFeature : ScriptableRendererFeature
 {
     [SerializeField] private Shader shader;
+
+    [Tooltip("When the mapping is applied. Mapping is a projection correction: it should be the last " +
+             "thing applied to the image, after post-processing, so effects such as bloom or vignette " +
+             "are warped along with the rest and the grid is drawn over them.")]
+    [SerializeField] private RenderPassEvent passEvent = RenderPassEvent.AfterRenderingPostProcessing;
+
     private Material material;
     private PerspectiveMappingRenderPass perspectiveMappingRenderPass;
 
@@ -21,7 +27,11 @@ public class PerspectiveMappingFeature : ScriptableRendererFeature
         material = new Material(shader);
         perspectiveMappingRenderPass = new PerspectiveMappingRenderPass(material);
 
-        perspectiveMappingRenderPass.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+        perspectiveMappingRenderPass.renderPassEvent = passEvent;
+
+        // After post-processing, URP may render straight to the back buffer, which this pass cannot
+        // sample from: force an intermediate color texture.
+        perspectiveMappingRenderPass.requiresIntermediateTexture = true;
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer,
