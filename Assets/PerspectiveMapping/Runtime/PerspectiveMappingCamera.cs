@@ -528,11 +528,21 @@ public class PerspectiveMappingCamera : MonoBehaviour
         Debug.Log("[PerspectiveMapping] Saved config file : " + path);
     }
 
+    // GetInstanceID() is an obsolete error from Unity 6.6, replaced by GetEntityId() (6.5+).
+    string GetObjectId()
+    {
+#if UNITY_6000_5_OR_NEWER
+        return this.gameObject.GetEntityId().ToString();
+#else
+        return this.gameObject.GetInstanceID().ToString();
+#endif
+    }
+
     // The object id may contain characters that are invalid in a file name
-    // (on Unity 6.3+, GetEntityId() is written "28331:256"), as may the GameObject name.
+    // (an EntityId is written "28331:256"), as may the GameObject name.
     string GetConfigPath()
     {
-        var fileName = this.gameObject.name + "_" + this.gameObject.GetInstanceID() + "_config.json";
+        var fileName = this.gameObject.name + "_" + GetObjectId() + "_config.json";
         foreach (char c in Path.GetInvalidFileNameChars())
             fileName = fileName.Replace(c, '_');
         return Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", fileName);
@@ -541,7 +551,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
     public void LoadInvariants()
     {
         var path = GetConfigPath();
-        Debug.Log("[PerspectiveMapping] Loading config file for camera "+ this.gameObject.name + ", instanceID : " + this.gameObject.GetInstanceID());
+        Debug.Log("[PerspectiveMapping] Loading config file for camera "+ this.gameObject.name + ", instanceID : " + GetObjectId());
 
         if (File.Exists(path))
         {
@@ -554,7 +564,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
         }
         else
         {
-            Debug.Log("[PerspectiveMapping] No config file found for camera " + this.gameObject.name + "_" + this.gameObject.GetInstanceID() + ".");
+            Debug.Log("[PerspectiveMapping] No config file found for camera " + this.gameObject.name + "_" + GetObjectId() + ".");
         }
     }
 
