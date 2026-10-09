@@ -569,11 +569,26 @@ public class PerspectiveMappingCamera : MonoBehaviour
 #endif
     }
 
-    // The object id may contain characters that are invalid in a file name
-    // (an EntityId is written "28331:256"), as may the GameObject name.
+    // The config is named after the camera and the display it renders to: both are set in the
+    // scene and stay the same from one launch to the next. The object id used before did not:
+    // Unity gives no guarantee about it across launches, and a calibration saved under one id
+    // was lost when the next launch got another.
     string GetConfigPath()
     {
-        var fileName = this.gameObject.name + "_" + GetObjectId() + "_config.json";
+        var display = GetComponent<Camera>() != null ? GetComponent<Camera>().targetDisplay : 0;
+        return ConfigPathFor(this.gameObject.name + "_display" + display);
+    }
+
+    // Name used up to 1.2.3, read as a fallback so that an existing calibration is not lost.
+    string GetLegacyConfigPath()
+    {
+        return ConfigPathFor(this.gameObject.name + "_" + GetObjectId());
+    }
+
+    // The GameObject name may contain characters that are invalid in a file name.
+    static string ConfigPathFor(string key)
+    {
+        var fileName = key + "_config.json";
         foreach (char c in Path.GetInvalidFileNameChars())
             fileName = fileName.Replace(c, '_');
         return Path.Combine(Application.streamingAssetsPath, "PerspectiveMapping", fileName);
@@ -582,7 +597,17 @@ public class PerspectiveMappingCamera : MonoBehaviour
     public void LoadInvariants()
     {
         var path = GetConfigPath();
-        Debug.Log("[PerspectiveMapping] Loading config file for camera "+ this.gameObject.name + ", instanceID : " + GetObjectId());
+        Debug.Log("[PerspectiveMapping] Loading config file for camera " + this.gameObject.name + " : " + path);
+
+        if (!File.Exists(path))
+        {
+            var legacyPath = GetLegacyConfigPath();
+            if (File.Exists(legacyPath))
+            {
+                Debug.Log("[PerspectiveMapping] Using legacy config file : " + legacyPath + ". It will be saved under the new name.");
+                path = legacyPath;
+            }
+        }
 
         if (File.Exists(path))
         {
@@ -595,7 +620,7 @@ public class PerspectiveMappingCamera : MonoBehaviour
         }
         else
         {
-            Debug.Log("[PerspectiveMapping] No config file found for camera " + this.gameObject.name + "_" + GetObjectId() + ".");
+            Debug.Log("[PerspectiveMapping] No config file found for camera " + this.gameObject.name + ".");
         }
     }
 
