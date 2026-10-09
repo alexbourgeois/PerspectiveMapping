@@ -30,6 +30,12 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
     RenderTextureFormat.Default, 0);
     }
 
+    // Called by the feature each frame: the material can be recreated after the pass.
+    public void SetMaterial(Material material)
+    {
+        this.material = material;
+    }
+
     private void UpdatePerspectiveMappingSettings(PerspectiveMappingCamera perspCam)
     {
         if (material == null) return;
@@ -83,6 +89,10 @@ public class PerspectiveMappingRenderPass : ScriptableRenderPass
     public override void RecordRenderGraph(RenderGraph renderGraph,
     ContextContainer frameData)
     {
+        // Without a material (shader missing, or destroyed), there is nothing to blit with.
+        if (material == null)
+            return;
+
         UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
 
         TextureHandle srcCamColor = resourceData.activeColorTexture;
