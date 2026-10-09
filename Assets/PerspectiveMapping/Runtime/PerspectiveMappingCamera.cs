@@ -261,12 +261,8 @@ public class PerspectiveMappingCamera : MonoBehaviour
 
         //Check mouse
         handles.magneticDistance = this.magneticCornerDistance;
-#if ENABLE_INPUT_SYSTEM
-        Vector3 mainMousePos = Mouse.current.position.ReadValue();
-#else
-        Vector3 mainMousePos = Input.mousePosition;
-#endif
-        Vector3 relMousePos = Display.RelativeMouseAt( mainMousePos ); 
+        Vector3 mainMousePos = GetMousePosition();
+        Vector3 relMousePos = GetRelativeMousePosition( mainMousePos ); 
         int hoveredDisplay = (int) relMousePos.z;
         if( hoveredDisplay == _cam.targetDisplay ) {
             _multiDisplayOffset = mainMousePos - relMousePos;
@@ -285,8 +281,10 @@ public class PerspectiveMappingCamera : MonoBehaviour
 #endif
 
 #if ENABLE_INPUT_SYSTEM
-        bool mouseBtn0Down = Mouse.current.leftButton.wasPressedThisFrame;
-        bool mouseBtn0Up = Mouse.current.leftButton.wasReleasedThisFrame;
+        // No mouse plugged in (an installation driven by keyboard only): nothing to drag.
+        var mouse = Mouse.current;
+        bool mouseBtn0Down = mouse != null && mouse.leftButton.wasPressedThisFrame;
+        bool mouseBtn0Up = mouse != null && mouse.leftButton.wasReleasedThisFrame;
 #else
         bool mouseBtn0Down = Input.GetMouseButtonDown(0);
         bool mouseBtn0Up = Input.GetMouseButtonUp(0);
@@ -319,15 +317,19 @@ public class PerspectiveMappingCamera : MonoBehaviour
                 // Translate.
 #if ENABLE_INPUT_SYSTEM
                 Vector2 delta = Vector2.zero;
-                if (Keyboard.current.leftArrowKey.isPressed) delta.x -= 1;
-                if (Keyboard.current.rightArrowKey.isPressed) delta.x += 1;
-                if (Keyboard.current.downArrowKey.isPressed) delta.y -= 1;
-                if (Keyboard.current.upArrowKey.isPressed) delta.y += 1;
-                delta.y *= _cam.aspect;
-                delta *= 0.1f;
-                
-                if (Keyboard.current.shiftKey.isPressed) delta *= 10;
-                else if (Keyboard.current.ctrlKey.isPressed) delta *= 0.2f;
+                var keyboard = Keyboard.current;
+                if (keyboard != null)
+                {
+                    if (keyboard.leftArrowKey.isPressed) delta.x -= 1;
+                    if (keyboard.rightArrowKey.isPressed) delta.x += 1;
+                    if (keyboard.downArrowKey.isPressed) delta.y -= 1;
+                    if (keyboard.upArrowKey.isPressed) delta.y += 1;
+                    delta.y *= _cam.aspect;
+                    delta *= 0.1f;
+
+                    if (keyboard.shiftKey.isPressed) delta *= 10;
+                    else if (keyboard.ctrlKey.isPressed) delta *= 0.2f;
+                }
 #else
                 Vector2 delta = new Vector2( Input.GetAxisRaw( "Horizontal" ), Input.GetAxisRaw( "Vertical" ) * _cam.aspect)* 0.1f;
                 if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) delta *= 10;
@@ -494,9 +496,38 @@ public class PerspectiveMappingCamera : MonoBehaviour
         return result;
     }
 
+    // Mouse position in screen pixels, through whichever input backend is active. With the Input
+    // System only (activeInputHandler = Input System), UnityEngine.Input throws in builds.
+    public static Vector3 GetMousePosition()
+    {
+#if ENABLE_INPUT_SYSTEM
+        var mouse = Mouse.current;
+        return mouse != null ? (Vector3)mouse.position.ReadValue() : Vector3.zero;
+#else
+        return Input.mousePosition;
+#endif
+    }
+
+    // Mouse position relative to the display it is on, the display index in z. RelativeMouseAt
+    // only answers on multi-display setups: with a single display, the position is already
+    // relative to it.
+    public static Vector3 GetRelativeMousePosition(Vector3 mousePosition)
+    {
+        if (Display.displays.Length > 1)
+        {
+            Vector3 relative = Display.RelativeMouseAt(mousePosition);
+
+            // Zero means Unity could not tell (e.g. the display is not activated).
+            if (relative != Vector3.zero)
+                return relative;
+        }
+
+        return new Vector3(mousePosition.x, mousePosition.y, 0f);
+    }
+
     public float GetMouseCurrentDisplay()
     {
-        return Display.RelativeMouseAt(Input.mousePosition).z;
+        return GetRelativeMousePosition(GetMousePosition()).z;
     }
 
     public float GetASpectRatio() {
